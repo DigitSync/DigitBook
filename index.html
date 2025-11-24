@@ -17,8 +17,15 @@
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
+        /* --- MODERN A4 INVOICE (Hidden, used for JPG Capture) --- */
         #invoice-modern-render {
-            width: 794px; min-height: 1123px; background: white; position: fixed; top: 0; left: -9999px; z-index: -1;
+            width: 794px; /* A4 Width */
+            min-height: 1123px; /* A4 Height */
+            background: white;
+            position: fixed;
+            top: 0;
+            left: -9999px; /* Hidden */
+            z-index: -1;
         }
 
         .fab-shadow { box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5); }
@@ -68,7 +75,7 @@
         <!-- HEADER -->
         <div class="bg-white px-5 py-4 shadow-sm border-b sticky top-0 z-30 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- BACK BUTTON (Updated Logic) -->
+                <!-- BACK BUTTON -->
                 <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition active:scale-95">
                     <i class="fa-solid fa-arrow-left text-slate-600 text-lg"></i>
                 </button>
@@ -216,9 +223,11 @@
                         <i class="fa-solid fa-file-excel text-lg block mb-1"></i> Export
                     </button>
                 </div>
+                
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-5">
                     <div class="h-32 w-full"><canvas id="salesChart"></canvas></div>
                 </div>
+
                 <div class="flex bg-white p-1 rounded-xl mb-5 shadow-sm border border-slate-100">
                     <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active">Today</button>
                     <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400">Month</button>
@@ -333,26 +342,86 @@
         </div>
     </div>
 
-    <!-- HIDDEN INVOICE (MODERN) -->
-    <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans">
+    <!-- INVOICE MODERN RENDER (The one you liked) -->
+    <div id="invoice-modern-render" class="p-0 text-slate-800 font-sans bg-white">
+        <!-- Header -->
         <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
-            <div><h1 class="text-4xl font-bold" id="mod-shop-name">SHOP</h1><p class="text-sm mt-1 opacity-80">INVOICE</p></div>
-            <div class="text-right"><h2 class="text-2xl font-bold" id="mod-inv-total">₹0</h2></div>
-        </div>
-        <div class="p-8">
-            <div class="flex justify-between mb-8">
-                <div class="w-1/2"><p class="text-xs font-bold text-slate-400 uppercase">From</p><p class="font-bold" id="mod-from-name"></p><p class="text-sm text-slate-600" id="mod-from-addr"></p><p class="text-sm text-slate-600" id="mod-from-phone"></p><p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p></div>
-                <div class="w-1/2 text-right"><p class="text-xs font-bold text-slate-400 uppercase">Bill To</p><p class="font-bold" id="mod-to-name"></p><p class="text-sm text-slate-600" id="mod-to-phone"></p><div class="mt-4"><p class="text-sm"><span class="font-bold">Inv #:</span> <span id="mod-inv-no"></span></p><p class="text-sm"><span class="font-bold">Date:</span> <span id="mod-inv-date"></span></p></div></div>
+            <div>
+                <h1 class="text-4xl font-bold uppercase tracking-wider" id="mod-shop-name">SHOP NAME</h1>
+                <p class="text-sm mt-1 opacity-80 tracking-widest">INVOICE</p>
             </div>
-            <table class="w-full mb-8"><thead class="bg-[#003366] text-white"><tr><th class="p-3 text-left text-sm">ITEM</th><th class="p-3 text-center text-sm">PRICE</th><th class="p-3 text-center text-sm">GST</th><th class="p-3 text-right text-sm">AMT</th></tr></thead><tbody id="mod-tbody" class="text-sm text-slate-700"></tbody></table>
-            <div class="flex justify-end"><div class="w-64"><div class="flex justify-between py-1 border-b"><span class="text-slate-500">Tax</span><span id="mod-tax">0.00</span></div><div class="flex justify-between py-2 font-bold text-lg text-[#003366]"><span>TOTAL</span><span>₹ <span id="mod-grand-total">0.00</span></span></div></div></div>
-            <div class="mt-16 pt-8 border-t text-center text-xs text-slate-400"><p>Thank you!</p><p class="mt-1">UPI: <span id="mod-upi"></span></p><p class="mt-4 font-bold text-slate-300">Powered by DigitMart</p></div>
+            <div class="text-right">
+                <h2 class="text-3xl font-bold" id="mod-inv-total">₹ 0.00</h2>
+            </div>
+        </div>
+
+        <div class="p-10">
+            <!-- Info Grid -->
+            <div class="flex justify-between mb-10">
+                <div class="w-1/2">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">From</p>
+                    <p class="font-bold text-lg text-slate-800" id="mod-from-name">Shop Name</p>
+                    <p class="text-sm text-slate-600 w-2/3" id="mod-from-addr">Address</p>
+                    <p class="text-sm text-slate-600 mt-1">Ph: <span id="mod-from-phone"></span></p>
+                    <p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p>
+                </div>
+                <div class="w-1/2 text-right">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Bill To</p>
+                    <p class="font-bold text-lg text-slate-800" id="mod-to-name">Guest</p>
+                    <p class="text-sm text-slate-600" id="mod-to-phone">Phone</p>
+                    <div class="mt-4 inline-block text-right bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <p class="text-sm"><span class="font-bold text-slate-500">Invoice #:</span> <span class="font-bold" id="mod-inv-no"></span></p>
+                        <p class="text-sm"><span class="font-bold text-slate-500">Date:</span> <span class="font-bold" id="mod-inv-date"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table class="w-full mb-8 border-collapse">
+                <thead class="bg-[#003366] text-white">
+                    <tr>
+                        <th class="p-4 text-left text-sm font-bold uppercase w-1/2">Description</th>
+                        <th class="p-4 text-center text-sm font-bold uppercase">Qty</th>
+                        <th class="p-4 text-center text-sm font-bold uppercase">Price</th>
+                        <th class="p-4 text-center text-sm font-bold uppercase">GST</th>
+                        <th class="p-4 text-right text-sm font-bold uppercase">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="mod-tbody" class="text-sm text-slate-700">
+                    <!-- Row will be inserted here -->
+                </tbody>
+            </table>
+
+            <!-- Totals -->
+            <div class="flex justify-end">
+                <div class="w-72">
+                    <div class="flex justify-between py-2 border-b border-slate-200">
+                        <span class="text-slate-500 font-medium">Subtotal</span>
+                        <span class="font-bold" id="mod-subtotal">0.00</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b border-slate-200">
+                        <span class="text-slate-500 font-medium">Tax (GST)</span>
+                        <span class="font-bold" id="mod-tax">0.00</span>
+                    </div>
+                    <div class="flex justify-between py-3 font-bold text-xl text-[#003366]">
+                        <span>TOTAL</span>
+                        <span>₹ <span id="mod-grand-total">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-20 pt-8 border-t-2 border-slate-100 text-center">
+                <p class="text-sm font-bold text-slate-700">Thank you for your business!</p>
+                <p class="text-xs text-slate-500 mt-1">Payment Info: UPI - <span id="mod-upi" class="font-mono text-slate-800"></span></p>
+                <div class="mt-6 text-[10px] text-slate-300 font-bold uppercase tracking-widest">Powered by DigitMart</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v13';
-        const OLD_KEYS = ['digitmart_billbook_v12', 'digitmart_billbook_v11']; // Data Migration Logic
+        const DB_KEY = 'digitmart_billbook_v14';
+        const OLD_KEYS = ['digitmart_billbook_v13', 'digitmart_billbook_v12', 'digitmart_billbook_v11'];
         let salesChartInstance = null;
 
         const app = {
@@ -362,8 +431,6 @@
 
             init: function() {
                 let stored = localStorage.getItem(DB_KEY);
-                
-                // --- SMART MIGRATION ---
                 if(!stored) {
                     for(let key of OLD_KEYS) {
                         const oldData = localStorage.getItem(key);
@@ -382,7 +449,6 @@
                 }
                 
                 if(this.data.shop) {
-                    // Optional Password Check
                     if(this.data.shop.password && this.data.shop.password.trim() !== "") {
                         document.getElementById('view-login').classList.remove('hidden');
                         document.getElementById('login-shop-display').innerText = this.data.shop.shopName;
@@ -402,7 +468,6 @@
                 this.updateDashboard();
             },
 
-            // --- TRASH LOGIC ---
             moveToTrash: function(item, type) {
                 this.data.trash.push({ ...item, deletedAt: Date.now(), type: type });
             },
@@ -440,7 +505,6 @@
                 alert('Restored!');
             },
 
-            // --- EXPENSE DELETE ---
             deleteExpense: function(id) {
                 const item = this.data.expenses.find(e => e.id === id);
                 if(confirm('Move Expense to Trash?')) {
@@ -452,7 +516,6 @@
                 }
             },
 
-            // --- NAV & BACK BTN ---
             nav: function(viewId) {
                 document.querySelectorAll('#main-content > div').forEach(el => el.classList.add('hidden'));
                 document.getElementById('view-' + viewId).classList.remove('hidden');
@@ -476,10 +539,10 @@
                 if(viewId === 'expenses') this.renderExpenses();
                 if(viewId === 'items') this.renderStockItems();
                 if(viewId === 'credit') this.renderCredits();
+                
                 this.updateDashboard();
             },
 
-            // --- CREDIT LOGIC ---
             markCreditPaid: function(id) {
                 const creditIndex = this.data.credits.findIndex(c => c.id === id);
                 if(creditIndex === -1) return;
@@ -514,7 +577,6 @@
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
             },
 
-            // --- REST OF THE LOGIC (Same as before, streamlined) ---
             saveSetup: function(e) {
                 e.preventDefault();
                 const fd = new FormData(e.target);
@@ -546,8 +608,40 @@
             addCredit: function() { const name = document.getElementById('cred-name').value; const phone = document.getElementById('cred-phone').value; const amt = parseFloat(document.getElementById('cred-amt').value); if(!name || !amt) return alert('Name & Amount needed!'); this.data.credits.unshift({ id: Date.now(), name, phone, amount: amt, note: document.getElementById('cred-note').value || 'Manual', date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('cred-name').value=''; document.getElementById('cred-phone').value=''; document.getElementById('cred-amt').value=''; document.getElementById('cred-note').value=''; this.renderCredits(); alert('Added!'); },
             renderCredits: function() { const list = document.getElementById('credit-list'); list.innerHTML = ''; if(this.data.credits.length===0) { list.innerHTML='<div class="text-center text-slate-400 mt-6 text-xs">No Dues</div>'; return; } this.data.credits.forEach(c => { list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm flex justify-between items-center"><div class="flex-1"><div class="font-bold text-slate-800 text-sm">${c.name}</div><div class="text-[10px] text-slate-500 font-bold">${c.date} • ${c.note}</div><div class="flex gap-3 mt-2">${c.phone ? `<button onclick="window.open('tel:${c.phone}')" class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-600"><i class="fa-solid fa-phone mr-1"></i> Call</button>` : ''}${c.phone ? `<button onclick="app.sendCreditWhatsapp(${c.phone}, '${c.name}', ${c.amount})" class="text-[10px] bg-green-50 px-2 py-1 rounded text-green-600"><i class="fa-brands fa-whatsapp mr-1"></i> Alert</button>` : ''}</div></div><div class="text-right"><div class="font-black text-orange-600 text-lg">₹${c.amount}</div><button onclick="app.markCreditPaid(${c.id})" class="text-[10px] bg-orange-500 text-white px-3 py-1.5 rounded-lg mt-1 font-bold shadow-sm active:scale-95">MARK PAID</button><button onclick="app.deleteCredit(${c.id})" class="text-[10px] text-red-400 block mt-1 ml-auto">Delete</button></div></div>`; }); },
             deleteCredit: function(id) { const item = this.data.credits.find(c => c.id === id); if(confirm('Move to Trash?')) { this.moveToTrash(item, 'credit'); this.data.credits = this.data.credits.filter(c => c.id !== id); this.save(); this.renderCredits(); } },
-            prepareInvoices: function(inv) { document.getElementById('mod-shop-name').innerText = this.data.shop.shopName; document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`; document.getElementById('mod-from-name').innerText = this.data.shop.shopName; document.getElementById('mod-from-addr').innerText = this.data.shop.address; document.getElementById('mod-from-phone').innerText = this.data.shop.phone; document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A'; document.getElementById('mod-to-name').innerText = inv.name; document.getElementById('mod-to-phone').innerText = inv.phone || '-'; document.getElementById('mod-inv-no').innerText = inv.no; document.getElementById('mod-inv-date').innerText = inv.date; document.getElementById('mod-tbody').innerHTML = `<tr class="border-b"><td class="p-3">${inv.item}</td><td class="p-3 text-center">1</td><td class="p-3 text-center">${inv.rate}</td><td class="p-3 text-center">${inv.gstPercent}%</td><td class="p-3 text-right font-bold">${inv.grandTotal}</td></tr>`; document.getElementById('mod-subtotal').innerText = inv.rate; document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2); document.getElementById('mod-grand-total').innerText = inv.grandTotal; document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A'; },
-            downloadModernJPG: function(cb) { html2canvas(document.getElementById('invoice-modern-render'), { scale: 2 }).then(c => { const a = document.createElement('a'); a.download = `Invoice_${this.currentInv.no}.jpg`; a.href = c.toDataURL('image/jpeg', 0.9); a.click(); if(cb) cb(); }); },
+            prepareInvoices: function(inv) {
+                document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
+                document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
+                document.getElementById('mod-from-name').innerText = this.data.shop.shopName;
+                document.getElementById('mod-from-addr').innerText = this.data.shop.address;
+                document.getElementById('mod-from-phone').innerText = this.data.shop.phone;
+                document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A';
+                document.getElementById('mod-to-name').innerText = inv.name;
+                document.getElementById('mod-to-phone').innerText = inv.phone || '-';
+                document.getElementById('mod-inv-no').innerText = inv.no;
+                document.getElementById('mod-inv-date').innerText = inv.date;
+                document.getElementById('mod-tbody').innerHTML = `
+                    <tr class="border-b border-slate-200">
+                        <td class="p-4 font-bold">${inv.item}</td>
+                        <td class="p-4 text-center">1</td>
+                        <td class="p-4 text-center">${inv.rate}</td>
+                        <td class="p-4 text-center">${inv.gstPercent}%</td>
+                        <td class="p-4 text-right font-black">${inv.grandTotal}</td>
+                    </tr>`;
+                document.getElementById('mod-subtotal').innerText = inv.rate;
+                document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2);
+                document.getElementById('mod-grand-total').innerText = inv.grandTotal;
+                document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A';
+            },
+            downloadModernJPG: function(cb) { 
+                const element = document.getElementById('invoice-modern-render');
+                html2canvas(element, { scale: 2 }).then(canvas => { 
+                    const a = document.createElement('a'); 
+                    a.download = `Invoice_${this.currentInv.no}.jpg`; 
+                    a.href = canvas.toDataURL('image/jpeg', 0.9); 
+                    a.click(); 
+                    if(cb) cb(); 
+                }); 
+            },
             downloadBillAction: function() { if(!this.currentInv) return; this.prepareInvoices(this.currentInv); this.downloadModernJPG(); },
             shareBillAction: function() { if(!this.currentInv) return; if(!this.currentInv.phone) return alert('No Phone!'); this.prepareInvoices(this.currentInv); this.downloadModernJPG(() => { const t = `*INVOICE FROM ${this.data.shop.shopName}*\nBill: ${this.currentInv.no}\nAmt: ₹${this.currentInv.grandTotal}`; window.open(`https://wa.me/91${this.currentInv.phone}?text=${encodeURIComponent(t)}`, '_blank'); }); },
             addExpense: function() { const name = document.getElementById('exp-name').value; const amt = parseFloat(document.getElementById('exp-amt').value); if(!name || !amt) return; this.data.expenses.unshift({ id: Date.now(), name, amount: amt, date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('exp-name').value=''; document.getElementById('exp-amt').value=''; this.renderExpenses(); },
