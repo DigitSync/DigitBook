@@ -17,7 +17,6 @@
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- MODERN A4 INVOICE (Hidden) --- */
         #invoice-modern-render {
             width: 794px; min-height: 1123px; background: white; position: fixed; top: 0; left: -9999px; z-index: -1;
         }
@@ -38,7 +37,7 @@
     <div id="view-login" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 hidden">
         <div class="w-24 h-24 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl font-black mb-6 shadow-2xl rotate-3">DM</div>
         <h1 class="text-3xl font-extrabold text-slate-900 mb-1">DigitMart</h1>
-        <p class="text-slate-500 mb-8 text-sm font-medium">Secure Business Manager</p>
+        <p class="text-slate-500 mb-8 text-sm font-medium">Business Manager</p>
         <div class="w-full max-w-xs space-y-4">
             <div id="login-shop-display" class="text-center font-bold text-lg text-blue-700 hidden"></div>
             <input type="password" id="input-pass" placeholder="Enter Password" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-center text-xl outline-none focus:border-blue-600 bg-slate-50 font-bold transition-all">
@@ -69,15 +68,16 @@
         <!-- HEADER -->
         <div class="bg-white px-5 py-4 shadow-sm border-b sticky top-0 z-30 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition">
-                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
+                <!-- BACK BUTTON (Updated Logic) -->
+                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition active:scale-95">
+                    <i class="fa-solid fa-arrow-left text-slate-600 text-lg"></i>
                 </button>
                 <div>
                     <h1 id="header-shop-name" class="font-black text-xl text-slate-800 leading-none tracking-tight">DigitMart</h1>
                     <p class="text-[10px] font-bold text-blue-600 tracking-wide mt-0.5">PRO BILLING</p>
                 </div>
             </div>
-            <div onclick="app.nav('settings')" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100 cursor-pointer hover:text-blue-600">
+            <div onclick="app.nav('settings')" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100 cursor-pointer hover:text-blue-600 active:scale-95">
                 <i class="fa-solid fa-gear"></i>
             </div>
         </div>
@@ -114,7 +114,6 @@
                         <span class="text-xs font-bold text-slate-600">Expenses</span>
                     </button>
                     
-                    <!-- CREDIT BOOK BUTTON -->
                     <button onclick="app.nav('credit')" class="col-span-3 bg-white p-4 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between active:scale-95 transition">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="fa-solid fa-book-open text-xl"></i></div>
@@ -137,14 +136,12 @@
                     </div>
                     
                     <div class="space-y-4">
-                        <!-- Customer -->
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <input id="bill-cust-name" placeholder="Customer Name" class="w-full bg-transparent outline-none text-sm font-bold mb-2 placeholder-slate-400">
                             <div class="h-px bg-slate-200 mb-2"></div>
                             <input id="bill-cust-phone" type="number" placeholder="Phone Number" class="w-full bg-transparent outline-none text-sm font-bold placeholder-slate-400">
                         </div>
 
-                        <!-- Items -->
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Item Details</label>
                             <input id="bill-item-name" list="item-suggestions" oninput="app.checkItemPrice()" placeholder="Search Item..." class="w-full p-3 mt-1 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold text-slate-700 focus:border-blue-500 transition">
@@ -173,7 +170,6 @@
                              <span class="text-2xl font-black text-blue-600">₹ <span id="bill-final-total">0.00</span></span>
                         </div>
 
-                        <!-- Mode -->
                         <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-xl">
                             <button onclick="app.setMode('Cash')" id="mode-Cash" class="mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition">Cash</button>
                             <button onclick="app.setMode('UPI')" id="mode-UPI" class="mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition">UPI</button>
@@ -220,11 +216,9 @@
                         <i class="fa-solid fa-file-excel text-lg block mb-1"></i> Export
                     </button>
                 </div>
-                
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-5">
                     <div class="h-32 w-full"><canvas id="salesChart"></canvas></div>
                 </div>
-
                 <div class="flex bg-white p-1 rounded-xl mb-5 shadow-sm border border-slate-100">
                     <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active">Today</button>
                     <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400">Month</button>
@@ -233,7 +227,7 @@
                 <div id="history-list" class="space-y-3"></div>
             </div>
 
-            <!-- EXPENSES & ITEMS (Hidden in nav, shown on demand) -->
+            <!-- EXPENSES -->
             <div id="view-expenses" class="hidden fade-in pb-28">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
                     <h3 class="font-bold text-slate-700 mb-3">Add Expense</h3>
@@ -246,6 +240,7 @@
                 <div id="expense-list" class="space-y-2"></div>
             </div>
 
+            <!-- STOCK ITEMS -->
             <div id="view-items" class="hidden fade-in pb-28">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
                     <h3 class="font-bold text-slate-700 mb-3">Add Stock</h3>
@@ -294,10 +289,12 @@
                     <button onclick="app.shareDigitTools()" class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-bold border border-indigo-100 text-xs flex items-center justify-center gap-2">
                         <i class="fa-solid fa-share-nodes"></i> Share DigitTools
                     </button>
+
+                    <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
                 </div>
             </div>
 
-            <!-- TRASH BIN VIEW (Hidden Overlay) -->
+            <!-- TRASH BIN VIEW -->
             <div id="view-trash" class="fixed inset-0 bg-white z-40 hidden flex flex-col">
                 <div class="p-4 border-b flex justify-between items-center bg-slate-50">
                     <h2 class="font-bold text-lg">Trash Bin <span class="text-xs font-normal text-slate-500">(7 Days Retention)</span></h2>
@@ -308,7 +305,7 @@
 
         </div>
 
-        <!-- FAB (Bigger Plus Button) -->
+        <!-- FAB -->
         <div id="fab-btn" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
             <button onclick="app.newBill()" class="w-20 h-20 bg-blue-600 rounded-full text-white text-3xl shadow-2xl fab-shadow flex items-center justify-center border-[6px] border-slate-50 active:scale-90 transition hover:scale-105 hover:bg-blue-700">
                 <i class="fa-solid fa-plus"></i>
@@ -336,7 +333,7 @@
         </div>
     </div>
 
-    <!-- HIDDEN INVOICE ELEMENTS (Same as before) -->
+    <!-- HIDDEN INVOICE (MODERN) -->
     <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans">
         <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
             <div><h1 class="text-4xl font-bold" id="mod-shop-name">SHOP</h1><p class="text-sm mt-1 opacity-80">INVOICE</p></div>
@@ -354,8 +351,8 @@
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v12'; // UPDATED KEY for Migration
-        const OLD_DB_KEY = 'digitmart_billbook_v11';
+        const DB_KEY = 'digitmart_billbook_v13';
+        const OLD_KEYS = ['digitmart_billbook_v12', 'digitmart_billbook_v11']; // Data Migration Logic
         let salesChartInstance = null;
 
         const app = {
@@ -364,35 +361,33 @@
             currentInv: null,
 
             init: function() {
-                // --- MIGRATION LOGIC ---
                 let stored = localStorage.getItem(DB_KEY);
+                
+                // --- SMART MIGRATION ---
                 if(!stored) {
-                    const oldData = localStorage.getItem(OLD_DB_KEY);
-                    if(oldData) {
-                        stored = oldData; // Auto migrate v11 data
-                        console.log("Migrated from v11");
+                    for(let key of OLD_KEYS) {
+                        const oldData = localStorage.getItem(key);
+                        if(oldData) { stored = oldData; break; }
                     }
                 }
 
                 if(stored) {
                     this.data = JSON.parse(stored);
-                    // Ensure new fields exist
                     if(!this.data.credits) this.data.credits = [];
                     if(!this.data.trash) this.data.trash = [];
                     if(this.data.items.length > 0 && typeof this.data.items[0] === 'string') {
                         this.data.items = this.data.items.map(name => ({name, price: ''}));
                     }
-                    this.cleanupTrash(); // Auto clean old trash
+                    this.cleanupTrash();
                 }
                 
                 if(this.data.shop) {
-                    // Check if Password is set
+                    // Optional Password Check
                     if(this.data.shop.password && this.data.shop.password.trim() !== "") {
                         document.getElementById('view-login').classList.remove('hidden');
                         document.getElementById('login-shop-display').innerText = this.data.shop.shopName;
                         document.getElementById('login-shop-display').classList.remove('hidden');
                     } else {
-                        // No password, direct entry
                         document.getElementById('app-interface').classList.remove('hidden');
                         this.loadSettings();
                         this.nav('dashboard');
@@ -409,35 +404,24 @@
 
             // --- TRASH LOGIC ---
             moveToTrash: function(item, type) {
-                this.data.trash.push({
-                    ...item,
-                    deletedAt: Date.now(),
-                    type: type // 'invoice' or 'credit'
-                });
+                this.data.trash.push({ ...item, deletedAt: Date.now(), type: type });
             },
 
             cleanupTrash: function() {
                 const sevenDays = 7 * 24 * 60 * 60 * 1000;
-                const now = Date.now();
-                this.data.trash = this.data.trash.filter(item => (now - item.deletedAt) < sevenDays);
+                this.data.trash = this.data.trash.filter(item => (Date.now() - item.deletedAt) < sevenDays);
                 this.save();
             },
 
             showTrash: function() {
                 const list = document.getElementById('trash-list');
                 list.innerHTML = '';
-                if(this.data.trash.length === 0) {
-                    list.innerHTML = '<div class="text-center text-slate-400 mt-10">Bin is Empty</div>';
-                } else {
+                if(this.data.trash.length === 0) list.innerHTML = '<div class="text-center text-slate-400 mt-10">Bin is Empty</div>';
+                else {
                     this.data.trash.forEach((item, idx) => {
-                        const isInv = item.type === 'invoice';
                         list.innerHTML += `
                             <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                                <div>
-                                    <span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">${item.type}</span>
-                                    <div class="font-bold text-sm text-slate-800 mt-1">${isInv ? item.no : item.name}</div>
-                                    <div class="text-xs text-slate-500">₹${isInv ? item.grandTotal : item.amount}</div>
-                                </div>
+                                <div><span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">${item.type}</span><div class="font-bold text-sm text-slate-800 mt-1">${item.name || item.no}</div></div>
                                 <button onclick="app.restoreFromTrash(${idx})" class="text-blue-600 font-bold text-xs bg-blue-50 px-3 py-2 rounded-lg">Restore</button>
                             </div>`;
                     });
@@ -447,85 +431,42 @@
 
             restoreFromTrash: function(idx) {
                 const item = this.data.trash[idx];
-                this.data.trash.splice(idx, 1); // Remove from trash
-                
+                this.data.trash.splice(idx, 1);
                 if(item.type === 'invoice') this.data.invoices.unshift(item);
                 else if(item.type === 'credit') this.data.credits.unshift(item);
-                
+                else if(item.type === 'expense') this.data.expenses.unshift(item);
                 this.save();
                 this.showTrash();
-                alert('Restored Successfully!');
+                alert('Restored!');
             },
 
-            // --- CREDIT LOGIC UPDATE ---
-            markCreditPaid: function(id) {
-                const creditIndex = this.data.credits.findIndex(c => c.id === id);
-                if(creditIndex === -1) return;
-                const credit = this.data.credits[creditIndex];
-
-                if(confirm(`Mark ₹${credit.amount} as Paid? This will move to Sale List.`)) {
-                    // Move to Invoice
-                    const newInv = {
-                        id: Date.now(),
-                        no: `INV-PAY-${String(this.data.invoices.length+1).padStart(3,'0')}`,
-                        date: new Date().toLocaleDateString('en-IN'),
-                        rawDate: new Date(),
-                        time: new Date().toLocaleTimeString(),
-                        item: `Credit Payment - ${credit.note || 'Dues'}`,
-                        rate: credit.amount,
-                        gstPercent: 0, taxAmount: 0,
-                        grandTotal: credit.amount.toFixed(2),
-                        mode: 'Cash', // Assuming cash payment for clearance
-                        phone: credit.phone,
-                        name: credit.name
-                    };
-                    
-                    this.data.invoices.unshift(newInv);
-                    this.data.credits.splice(creditIndex, 1); // Remove from credit
+            // --- EXPENSE DELETE ---
+            deleteExpense: function(id) {
+                const item = this.data.expenses.find(e => e.id === id);
+                if(confirm('Move Expense to Trash?')) {
+                    this.moveToTrash(item, 'expense');
+                    this.data.expenses = this.data.expenses.filter(e => e.id !== id);
                     this.save();
-                    this.renderCredits();
-                    alert('Payment Received! Moved to Sales.');
+                    this.renderExpenses();
+                    this.updateDashboard();
                 }
             },
 
-            sendCreditWhatsapp: function(phone, name, amt) {
-                if(!phone) return alert('No Phone Number!');
-                const upi = this.data.shop.upi;
-                const shop = this.data.shop.shopName;
-                let msg = `Hello ${name}, your payment of ₹${amt} is pending at *${shop}*.`;
-                if(upi) msg += `\nPlease pay via UPI: ${upi}`;
-                msg += `\n\nThank you!`;
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-
-            // --- CORE FUNCTIONS ---
-            saveSetup: function(e) {
-                e.preventDefault();
-                const fd = new FormData(e.target);
-                this.data.shop = Object.fromEntries(fd.entries());
-                this.save();
-                location.reload();
-            },
-
-            login: function() {
-                if(document.getElementById('input-pass').value === this.data.shop.password) {
-                    document.getElementById('view-login').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    this.loadSettings();
-                    this.nav('dashboard');
-                } else alert('Wrong Password');
-            },
-
-            logout: function() { location.reload(); },
-
+            // --- NAV & BACK BTN ---
             nav: function(viewId) {
                 document.querySelectorAll('#main-content > div').forEach(el => el.classList.add('hidden'));
                 document.getElementById('view-' + viewId).classList.remove('hidden');
                 document.getElementById('header-shop-name').innerText = this.data.shop.shopName;
                 const fab = document.getElementById('fab-btn');
-                
-                if(viewId === 'dashboard') fab.classList.remove('hidden');
-                else fab.classList.add('hidden');
+                const backBtn = document.getElementById('back-btn');
+
+                if(viewId === 'dashboard') {
+                    fab.classList.remove('hidden');
+                    backBtn.classList.add('hidden');
+                } else {
+                    fab.classList.add('hidden');
+                    backBtn.classList.remove('hidden');
+                }
 
                 if(viewId === 'billing') {
                     document.getElementById('bill-inv-no').innerText = `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`;
@@ -535,411 +476,94 @@
                 if(viewId === 'expenses') this.renderExpenses();
                 if(viewId === 'items') this.renderStockItems();
                 if(viewId === 'credit') this.renderCredits();
-                
                 this.updateDashboard();
             },
 
+            // --- CREDIT LOGIC ---
+            markCreditPaid: function(id) {
+                const creditIndex = this.data.credits.findIndex(c => c.id === id);
+                if(creditIndex === -1) return;
+                const credit = this.data.credits[creditIndex];
+
+                if(confirm(`Mark ₹${credit.amount} as Paid? Moving to Sales.`)) {
+                    const newInv = {
+                        id: Date.now(),
+                        no: `INV-PAY-${String(this.data.invoices.length+1).padStart(3,'0')}`,
+                        date: new Date().toLocaleDateString('en-IN'),
+                        rawDate: new Date(),
+                        time: new Date().toLocaleTimeString(),
+                        item: `Payment: ${credit.note || 'Due'}`,
+                        rate: credit.amount, gstPercent: 0, taxAmount: 0,
+                        grandTotal: credit.amount.toFixed(2),
+                        mode: 'Cash',
+                        phone: credit.phone,
+                        name: credit.name
+                    };
+                    this.data.invoices.unshift(newInv);
+                    this.data.credits.splice(creditIndex, 1);
+                    this.save();
+                    this.renderCredits();
+                    alert('Payment Received! Added to Sales.');
+                }
+            },
+
+            sendCreditWhatsapp: function(phone, name, amt) {
+                if(!phone) return alert('No Phone!');
+                let msg = `Hello ${name}, payment of ₹${amt} is pending at *${this.data.shop.shopName}*.`;
+                if(this.data.shop.upi) msg += `\nPay via UPI: ${this.data.shop.upi}`;
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+
+            // --- REST OF THE LOGIC (Same as before, streamlined) ---
+            saveSetup: function(e) {
+                e.preventDefault();
+                const fd = new FormData(e.target);
+                this.data.shop = Object.fromEntries(fd.entries());
+                this.save();
+                location.reload();
+            },
+            login: function() {
+                if(document.getElementById('input-pass').value === this.data.shop.password) {
+                    document.getElementById('view-login').classList.add('hidden');
+                    document.getElementById('app-interface').classList.remove('hidden');
+                    this.loadSettings();
+                    this.nav('dashboard');
+                } else alert('Wrong Password');
+            },
+            logout: function() { location.reload(); },
             updateDashboard: function() {
                 const totalSale = this.data.invoices.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0);
                 const totalExp = this.data.expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0);
                 document.getElementById('dash-total').innerText = totalSale.toLocaleString('en-IN');
                 document.getElementById('dash-expense').innerText = totalExp.toLocaleString('en-IN');
             },
-
-            newBill: function() {
-                this.currentMode = 'Cash';
-                this.updateModeUI();
-                document.getElementById('bill-cust-name').value = '';
-                document.getElementById('bill-item-name').value = '';
-                document.getElementById('bill-amount').value = '';
-                document.getElementById('bill-cust-phone').value = '';
-                document.getElementById('bill-gst').value = '0';
-                document.getElementById('bill-final-total').innerText = '0.00';
-                document.getElementById('live-qr-container').classList.add('hidden');
-                this.nav('billing');
-            },
-
-            setMode: function(mode) {
-                this.currentMode = mode;
-                this.updateModeUI();
-                this.calculateTotal(); 
-            },
-
-            updateModeUI: function() {
-                document.querySelectorAll('.mode-btn').forEach(b => {
-                    b.className = "mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition";
-                });
-                document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition ring-1 ring-blue-100";
-            },
-
-            checkItemPrice: function() {
-                const val = document.getElementById('bill-item-name').value;
-                const item = this.data.items.find(i => i.name === val);
-                if(item && item.price) {
-                    document.getElementById('bill-amount').value = item.price;
-                    this.calculateTotal();
-                }
-            },
-
-            calculateTotal: function() {
-                const price = parseFloat(document.getElementById('bill-amount').value) || 0;
-                const gstRate = parseFloat(document.getElementById('bill-gst').value) || 0;
-                const taxAmt = (price * gstRate) / 100;
-                const total = price + taxAmt;
-                document.getElementById('bill-final-total').innerText = total.toFixed(2);
-                const qrCont = document.getElementById('live-qr-container');
-                const qrDiv = document.getElementById('live-qrcode');
-                if(this.currentMode === 'UPI' && total > 0 && this.data.shop.upi) {
-                    qrCont.classList.remove('hidden');
-                    qrDiv.innerHTML = '';
-                    const link = `upi://pay?pa=${this.data.shop.upi}&pn=${encodeURIComponent(this.data.shop.shopName)}&am=${total.toFixed(2)}&cu=INR`;
-                    new QRCode(qrDiv, { text: link, width: 120, height: 120 });
-                } else {
-                    qrCont.classList.add('hidden');
-                }
-                return { price, gstRate, taxAmt, total };
-            },
-
-            saveBill: function(isNew) {
-                const calcs = this.calculateTotal();
-                if(!calcs.price || calcs.price <= 0) return alert('Boss, Price to daalo!');
-                
-                const inv = {
-                    id: Date.now(),
-                    no: `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`,
-                    date: new Date().toLocaleDateString('en-IN'),
-                    rawDate: new Date(),
-                    time: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
-                    item: document.getElementById('bill-item-name').value || 'Sale',
-                    rate: calcs.price,
-                    gstPercent: calcs.gstRate,
-                    taxAmount: calcs.taxAmt,
-                    grandTotal: calcs.total.toFixed(2),
-                    mode: this.currentMode,
-                    phone: document.getElementById('bill-cust-phone').value,
-                    name: document.getElementById('bill-cust-name').value || 'Guest'
-                };
-
-                // Direct to Invoice
-                this.data.invoices.unshift(inv);
-                
-                // If Credit Mode -> Add to Credit Book as well
-                if(this.currentMode === 'Credit') {
-                    this.data.credits.unshift({
-                        id: Date.now() + 1,
-                        name: inv.name,
-                        phone: inv.phone,
-                        amount: parseFloat(inv.grandTotal),
-                        note: `Inv ${inv.no}`,
-                        date: inv.date
-                    });
-                }
-
-                this.save();
-                this.currentInv = inv;
-
-                if(isNew) {
-                    const btn = event.target;
-                    const originalText = btn.innerText;
-                    btn.innerText = "Saved!";
-                    btn.classList.replace('bg-slate-800', 'bg-green-600');
-                    setTimeout(() => {
-                        btn.innerText = originalText;
-                        btn.classList.replace('bg-green-600', 'bg-slate-800');
-                        this.newBill();
-                    }, 800);
-                } else {
-                    document.getElementById('success-modal').classList.remove('hidden');
-                }
-            },
-
-            addCredit: function() {
-                const name = document.getElementById('cred-name').value;
-                const phone = document.getElementById('cred-phone').value;
-                const amt = parseFloat(document.getElementById('cred-amt').value);
-                const note = document.getElementById('cred-note').value || 'Manual';
-                if(!name || !amt) return alert('Name & Amount required!');
-
-                this.data.credits.unshift({
-                    id: Date.now(),
-                    name, phone, amount: amt, note,
-                    date: new Date().toLocaleDateString('en-IN')
-                });
-                this.save();
-                document.getElementById('cred-name').value = '';
-                document.getElementById('cred-phone').value = '';
-                document.getElementById('cred-amt').value = '';
-                document.getElementById('cred-note').value = '';
-                this.renderCredits();
-                alert('Added to Credit Book!');
-            },
-
-            renderCredits: function() {
-                const list = document.getElementById('credit-list');
-                list.innerHTML = '';
-                if(this.data.credits.length === 0) {
-                    list.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs">No Dues Pending</div>';
-                    return;
-                }
-                this.data.credits.forEach(c => {
-                    list.innerHTML += `
-                        <div class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm flex justify-between items-center">
-                            <div class="flex-1">
-                                <div class="font-bold text-slate-800 text-sm">${c.name}</div>
-                                <div class="text-[10px] text-slate-500 font-bold">${c.date} • ${c.note}</div>
-                                <div class="flex gap-3 mt-2">
-                                    ${c.phone ? `<button onclick="window.open('tel:${c.phone}')" class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-600"><i class="fa-solid fa-phone mr-1"></i> Call</button>` : ''}
-                                    ${c.phone ? `<button onclick="app.sendCreditWhatsapp(${c.phone}, '${c.name}', ${c.amount})" class="text-[10px] bg-green-50 px-2 py-1 rounded text-green-600"><i class="fa-brands fa-whatsapp mr-1"></i> Alert</button>` : ''}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-black text-orange-600 text-lg">₹${c.amount}</div>
-                                <button onclick="app.markCreditPaid(${c.id})" class="text-[10px] bg-orange-500 text-white px-3 py-1.5 rounded-lg mt-1 font-bold shadow-sm active:scale-95">MARK PAID</button>
-                                <button onclick="app.deleteCredit(${c.id})" class="text-[10px] text-red-400 block mt-1 ml-auto">Delete</button>
-                            </div>
-                        </div>`;
-                });
-            },
-
-            deleteCredit: function(id) {
-                const item = this.data.credits.find(c => c.id === id);
-                if(confirm('Move this entry to Trash?')) {
-                    this.moveToTrash(item, 'credit');
-                    this.data.credits = this.data.credits.filter(c => c.id !== id);
-                    this.save();
-                    this.renderCredits();
-                }
-            },
-
-            prepareInvoices: function(inv) {
-                document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
-                document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
-                document.getElementById('mod-from-name').innerText = this.data.shop.shopName;
-                document.getElementById('mod-from-addr').innerText = this.data.shop.address;
-                document.getElementById('mod-from-phone').innerText = this.data.shop.phone;
-                document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A';
-                document.getElementById('mod-to-name').innerText = inv.name;
-                document.getElementById('mod-to-phone').innerText = inv.phone || '-';
-                document.getElementById('mod-inv-no').innerText = inv.no;
-                document.getElementById('mod-inv-date').innerText = inv.date;
-                document.getElementById('mod-tbody').innerHTML = `
-                    <tr class="border-b">
-                        <td class="p-3">${inv.item}</td>
-                        <td class="p-3 text-center">1</td>
-                        <td class="p-3 text-center">${inv.rate}</td>
-                        <td class="p-3 text-center">${inv.gstPercent}%</td>
-                        <td class="p-3 text-right font-bold">${inv.grandTotal}</td>
-                    </tr>`;
-                document.getElementById('mod-subtotal').innerText = inv.rate;
-                document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2);
-                document.getElementById('mod-grand-total').innerText = inv.grandTotal;
-                document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A';
-            },
-
-            downloadModernJPG: function(cb) {
-                const el = document.getElementById('invoice-modern-render');
-                html2canvas(el, { scale: 2 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `Invoice_${this.currentInv.no}.jpg`;
-                    link.href = canvas.toDataURL('image/jpeg', 0.9);
-                    link.click();
-                    if(cb) cb();
-                });
-            },
-
-            downloadBillAction: function() {
-                if(!this.currentInv) return;
-                this.prepareInvoices(this.currentInv);
-                this.downloadModernJPG();
-            },
-
-            shareBillAction: function() {
-                if(!this.currentInv) return;
-                if(!this.currentInv.phone) return alert('No Customer Phone!');
-                this.prepareInvoices(this.currentInv);
-                this.downloadModernJPG(() => {
-                    const text = `*INVOICE FROM ${this.data.shop.shopName}*\n\nBill No: ${this.currentInv.no}\nAmount: ₹${this.currentInv.grandTotal}\n\nPlease find the attached invoice image.\nThank You!`;
-                    window.open(`https://wa.me/91${this.currentInv.phone}?text=${encodeURIComponent(text)}`, '_blank');
-                });
-            },
-
-            addExpense: function() {
-                const name = document.getElementById('exp-name').value;
-                const amt = parseFloat(document.getElementById('exp-amt').value);
-                if(!name || !amt) return;
-                this.data.expenses.unshift({ id: Date.now(), name, amount: amt, date: new Date().toLocaleDateString('en-IN') });
-                this.save();
-                document.getElementById('exp-name').value = '';
-                document.getElementById('exp-amt').value = '';
-                this.renderExpenses();
-            },
-
-            renderExpenses: function() {
-                const list = document.getElementById('expense-list');
-                list.innerHTML = '';
-                this.data.expenses.forEach(e => {
-                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between"><span class="text-sm font-bold text-slate-700">${e.name} <span class="text-xs text-slate-400 font-normal">(${e.date})</span></span><span class="font-bold text-red-500">₹${e.amount}</span></div>`;
-                });
-            },
-
-            addStockItem: function() {
-                const name = document.getElementById('stock-name').value;
-                const price = document.getElementById('stock-price').value;
-                if(!name) return;
-                this.data.items.push({name, price});
-                this.save();
-                document.getElementById('stock-name').value = '';
-                document.getElementById('stock-price').value = '';
-                this.renderStockItems();
-            },
-
-            renderStockItems: function() {
-                const list = document.getElementById('stock-list');
-                list.innerHTML = '';
-                this.data.items.forEach(i => {
-                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 text-sm font-bold text-slate-700 flex justify-between"><span>${i.name}</span><span class="text-blue-600 font-black">₹${i.price || '-'}</span></div>`;
-                });
-            },
-            
-            populateItemSuggestions: function() {
-                const dl = document.getElementById('item-suggestions');
-                dl.innerHTML = '';
-                this.data.items.forEach(i => { dl.innerHTML += `<option value="${i.name}">`; });
-            },
-
-            filterHistory: function(type) {
-                ['btn-today', 'btn-month', 'btn-all'].forEach(id => {
-                    document.getElementById(id).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400";
-                });
-                document.getElementById('btn-'+type).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active";
-                const todayStr = new Date().toLocaleDateString('en-IN');
-                const now = new Date();
-                let filtered = [];
-                if(type === 'today') filtered = this.data.invoices.filter(i => i.date === todayStr);
-                else if(type === 'month') filtered = this.data.invoices.filter(i => {
-                    const d = new Date(i.rawDate || i.id);
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                });
-                else filtered = this.data.invoices;
-
-                document.getElementById('hist-total').innerText = filtered.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
-                const list = document.getElementById('history-list');
-                list.innerHTML = '';
-                if(filtered.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs">No records found</div>'; return; }
-
-                filtered.forEach(i => {
-                    list.innerHTML += `
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1"><h4 class="font-bold text-slate-800">${i.mode} Sale</h4><span class="badge-paid">PAID</span></div>
-                                    <h2 class="text-xl font-black text-slate-900">₹ ${i.grandTotal}</h2>
-                                    <p class="text-[10px] text-slate-400 mt-1">GST: ${i.gstPercent}%</p>
-                                </div>
-                                <div class="text-right"><div class="text-[10px] font-bold text-slate-400">#${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div>
-                            </div>
-                            <div class="border-t border-slate-50 pt-3 flex justify-end gap-4 text-slate-400">
-                                <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.downloadBillAction()" class="hover:text-blue-600"><i class="fa-solid fa-download text-lg"></i></button>
-                                <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.shareBillAction()" class="hover:text-green-600"><i class="fa-brands fa-whatsapp text-lg"></i></button>
-                                <button onclick="app.deleteInvoice(${i.id})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash text-lg"></i></button>
-                            </div>
-                        </div>`;
-                });
-            },
-
-            deleteInvoice: function(id) {
-                const item = this.data.invoices.find(i => i.id === id);
-                if(confirm('Move to Trash?')) {
-                    this.moveToTrash(item, 'invoice');
-                    this.data.invoices = this.data.invoices.filter(i => i.id !== id);
-                    this.save();
-                    this.filterHistory('today');
-                    this.renderSalesChart();
-                }
-            },
-
-            renderSalesChart: function() {
-                const labels = [], data = [], today = new Date();
-                for(let i=6; i>=0; i--) {
-                    const d = new Date(today);
-                    d.setDate(today.getDate() - i);
-                    const dateStr = d.toLocaleDateString('en-IN');
-                    labels.push(dateStr.slice(0, 5));
-                    data.push(this.data.invoices.filter(inv => inv.date === dateStr).reduce((sum, inv) => sum + parseFloat(inv.grandTotal), 0));
-                }
-                const ctx = document.getElementById('salesChart').getContext('2d');
-                if(salesChartInstance) salesChartInstance.destroy();
-                salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data, backgroundColor: '#3b82f6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
-            },
-
-            loadSettings: function() {
-                document.getElementById('set-name').value = this.data.shop.shopName;
-                document.getElementById('set-upi').value = this.data.shop.upi || '';
-                document.getElementById('set-phone').value = this.data.shop.phone;
-                document.getElementById('set-address').value = this.data.shop.address;
-                document.getElementById('set-gstin').value = this.data.shop.gstin || '';
-                document.getElementById('set-pass').value = this.data.shop.password || '';
-            },
-            
-            updateProfile: function() {
-                this.data.shop.shopName = document.getElementById('set-name').value;
-                this.data.shop.upi = document.getElementById('set-upi').value;
-                this.data.shop.phone = document.getElementById('set-phone').value;
-                this.data.shop.address = document.getElementById('set-address').value;
-                this.data.shop.gstin = document.getElementById('set-gstin').value;
-                this.data.shop.password = document.getElementById('set-pass').value;
-                this.save();
-                alert('Profile Updated!');
-            },
-
-            exportExcel: function() {
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.invoices), "Sales");
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.expenses), "Expenses");
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.items), "Stock");
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.credits), "Credit_Book");
-                XLSX.writeFile(wb, `DigitMart_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
-            },
-
-            backupFlow: function() {
-                const a = document.createElement('a');
-                a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data));
-                a.download = `DigitMart_Backup_${new Date().toISOString().slice(0,10)}.json`;
-                document.body.appendChild(a);
-                a.click();
-            },
-            
-            restore: function(input) {
-                const file = input.files[0];
-                if(!file) return;
-                const reader = new FileReader();
-                if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    reader.onload = function(e) {
-                        try {
-                            const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                            if(wb.Sheets["Sales"]) app.data.invoices = XLSX.utils.sheet_to_json(wb.Sheets["Sales"]).reverse();
-                            if(wb.Sheets["Expenses"]) app.data.expenses = XLSX.utils.sheet_to_json(wb.Sheets["Expenses"]);
-                            if(wb.Sheets["Stock"]) app.data.items = XLSX.utils.sheet_to_json(wb.Sheets["Stock"]);
-                            if(wb.Sheets["Credit_Book"]) app.data.credits = XLSX.utils.sheet_to_json(wb.Sheets["Credit_Book"]);
-                            app.save(); alert('Excel Restored!'); location.reload();
-                        } catch(err) { alert('Error reading Excel'); }
-                    };
-                    reader.readAsArrayBuffer(file);
-                } else {
-                    reader.onload = function(e) {
-                        try {
-                            const d = JSON.parse(e.target.result);
-                            if(d.shop && d.invoices) { localStorage.setItem(DB_KEY, JSON.stringify(d)); alert('Restored!'); location.reload(); }
-                        } catch(err) { alert('Corrupt JSON'); }
-                    };
-                    reader.readAsText(file);
-                }
-            },
-
-            shareDigitTools: function() {
-                const text = `Hey! Check out DigitPhone by DigitMart for secure contacts: https://digitsync.github.io/DigitPhone/`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            }
+            newBill: function() { this.currentMode = 'Cash'; this.updateModeUI(); document.getElementById('bill-cust-name').value=''; document.getElementById('bill-item-name').value=''; document.getElementById('bill-amount').value=''; document.getElementById('bill-cust-phone').value=''; document.getElementById('bill-gst').value='0'; document.getElementById('bill-final-total').innerText='0.00'; document.getElementById('live-qr-container').classList.add('hidden'); this.nav('billing'); },
+            setMode: function(mode) { this.currentMode = mode; this.updateModeUI(); this.calculateTotal(); },
+            updateModeUI: function() { document.querySelectorAll('.mode-btn').forEach(b => b.className = "mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition"); document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition ring-1 ring-blue-100"; },
+            checkItemPrice: function() { const val = document.getElementById('bill-item-name').value; const item = this.data.items.find(i => i.name === val); if(item && item.price) { document.getElementById('bill-amount').value = item.price; this.calculateTotal(); } },
+            calculateTotal: function() { const price = parseFloat(document.getElementById('bill-amount').value)||0; const gstRate = parseFloat(document.getElementById('bill-gst').value)||0; const taxAmt = (price*gstRate)/100; const total = price+taxAmt; document.getElementById('bill-final-total').innerText = total.toFixed(2); const qrCont = document.getElementById('live-qr-container'); const qrDiv = document.getElementById('live-qrcode'); if(this.currentMode === 'UPI' && total>0 && this.data.shop.upi) { qrCont.classList.remove('hidden'); qrDiv.innerHTML = ''; new QRCode(qrDiv, { text: `upi://pay?pa=${this.data.shop.upi}&pn=${encodeURIComponent(this.data.shop.shopName)}&am=${total.toFixed(2)}&cu=INR`, width: 120, height: 120 }); } else { qrCont.classList.add('hidden'); } return { price, gstRate, taxAmt, total }; },
+            saveBill: function(isNew) { const calcs = this.calculateTotal(); if(!calcs.price || calcs.price <= 0) return alert('Amount required!'); const inv = { id: Date.now(), no: `INV-${String(this.data.invoices.length+1).padStart(4,'0')}`, date: new Date().toLocaleDateString('en-IN'), rawDate: new Date(), time: new Date().toLocaleTimeString(), item: document.getElementById('bill-item-name').value || 'Sale', rate: calcs.price, gstPercent: calcs.gstRate, taxAmount: calcs.taxAmt, grandTotal: calcs.total.toFixed(2), mode: this.currentMode, phone: document.getElementById('bill-cust-phone').value, name: document.getElementById('bill-cust-name').value || 'Guest' }; this.data.invoices.unshift(inv); if(this.currentMode === 'Credit') { this.data.credits.unshift({ id: Date.now()+1, name: inv.name, phone: inv.phone, amount: parseFloat(inv.grandTotal), note: `Inv ${inv.no}`, date: inv.date }); } this.save(); this.currentInv = inv; if(isNew) { const btn = event.target; const originalText = btn.innerText; btn.innerText = "Saved!"; setTimeout(() => { btn.innerText = originalText; this.newBill(); }, 800); } else { document.getElementById('success-modal').classList.remove('hidden'); } },
+            addCredit: function() { const name = document.getElementById('cred-name').value; const phone = document.getElementById('cred-phone').value; const amt = parseFloat(document.getElementById('cred-amt').value); if(!name || !amt) return alert('Name & Amount needed!'); this.data.credits.unshift({ id: Date.now(), name, phone, amount: amt, note: document.getElementById('cred-note').value || 'Manual', date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('cred-name').value=''; document.getElementById('cred-phone').value=''; document.getElementById('cred-amt').value=''; document.getElementById('cred-note').value=''; this.renderCredits(); alert('Added!'); },
+            renderCredits: function() { const list = document.getElementById('credit-list'); list.innerHTML = ''; if(this.data.credits.length===0) { list.innerHTML='<div class="text-center text-slate-400 mt-6 text-xs">No Dues</div>'; return; } this.data.credits.forEach(c => { list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm flex justify-between items-center"><div class="flex-1"><div class="font-bold text-slate-800 text-sm">${c.name}</div><div class="text-[10px] text-slate-500 font-bold">${c.date} • ${c.note}</div><div class="flex gap-3 mt-2">${c.phone ? `<button onclick="window.open('tel:${c.phone}')" class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-600"><i class="fa-solid fa-phone mr-1"></i> Call</button>` : ''}${c.phone ? `<button onclick="app.sendCreditWhatsapp(${c.phone}, '${c.name}', ${c.amount})" class="text-[10px] bg-green-50 px-2 py-1 rounded text-green-600"><i class="fa-brands fa-whatsapp mr-1"></i> Alert</button>` : ''}</div></div><div class="text-right"><div class="font-black text-orange-600 text-lg">₹${c.amount}</div><button onclick="app.markCreditPaid(${c.id})" class="text-[10px] bg-orange-500 text-white px-3 py-1.5 rounded-lg mt-1 font-bold shadow-sm active:scale-95">MARK PAID</button><button onclick="app.deleteCredit(${c.id})" class="text-[10px] text-red-400 block mt-1 ml-auto">Delete</button></div></div>`; }); },
+            deleteCredit: function(id) { const item = this.data.credits.find(c => c.id === id); if(confirm('Move to Trash?')) { this.moveToTrash(item, 'credit'); this.data.credits = this.data.credits.filter(c => c.id !== id); this.save(); this.renderCredits(); } },
+            prepareInvoices: function(inv) { document.getElementById('mod-shop-name').innerText = this.data.shop.shopName; document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`; document.getElementById('mod-from-name').innerText = this.data.shop.shopName; document.getElementById('mod-from-addr').innerText = this.data.shop.address; document.getElementById('mod-from-phone').innerText = this.data.shop.phone; document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A'; document.getElementById('mod-to-name').innerText = inv.name; document.getElementById('mod-to-phone').innerText = inv.phone || '-'; document.getElementById('mod-inv-no').innerText = inv.no; document.getElementById('mod-inv-date').innerText = inv.date; document.getElementById('mod-tbody').innerHTML = `<tr class="border-b"><td class="p-3">${inv.item}</td><td class="p-3 text-center">1</td><td class="p-3 text-center">${inv.rate}</td><td class="p-3 text-center">${inv.gstPercent}%</td><td class="p-3 text-right font-bold">${inv.grandTotal}</td></tr>`; document.getElementById('mod-subtotal').innerText = inv.rate; document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2); document.getElementById('mod-grand-total').innerText = inv.grandTotal; document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A'; },
+            downloadModernJPG: function(cb) { html2canvas(document.getElementById('invoice-modern-render'), { scale: 2 }).then(c => { const a = document.createElement('a'); a.download = `Invoice_${this.currentInv.no}.jpg`; a.href = c.toDataURL('image/jpeg', 0.9); a.click(); if(cb) cb(); }); },
+            downloadBillAction: function() { if(!this.currentInv) return; this.prepareInvoices(this.currentInv); this.downloadModernJPG(); },
+            shareBillAction: function() { if(!this.currentInv) return; if(!this.currentInv.phone) return alert('No Phone!'); this.prepareInvoices(this.currentInv); this.downloadModernJPG(() => { const t = `*INVOICE FROM ${this.data.shop.shopName}*\nBill: ${this.currentInv.no}\nAmt: ₹${this.currentInv.grandTotal}`; window.open(`https://wa.me/91${this.currentInv.phone}?text=${encodeURIComponent(t)}`, '_blank'); }); },
+            addExpense: function() { const name = document.getElementById('exp-name').value; const amt = parseFloat(document.getElementById('exp-amt').value); if(!name || !amt) return; this.data.expenses.unshift({ id: Date.now(), name, amount: amt, date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('exp-name').value=''; document.getElementById('exp-amt').value=''; this.renderExpenses(); },
+            renderExpenses: function() { const list = document.getElementById('expense-list'); list.innerHTML = ''; this.data.expenses.forEach(e => { list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center"><div><span class="text-sm font-bold text-slate-700 block">${e.name}</span><span class="text-xs text-slate-400 font-normal">${e.date}</span></div><div class="flex items-center gap-3"><span class="font-bold text-red-500">₹${e.amount}</span><button onclick="app.deleteExpense(${e.id})" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button></div></div>`; }); },
+            addStockItem: function() { const name = document.getElementById('stock-name').value; const price = document.getElementById('stock-price').value; if(!name) return; this.data.items.push({name, price}); this.save(); document.getElementById('stock-name').value=''; document.getElementById('stock-price').value=''; this.renderStockItems(); },
+            renderStockItems: function() { const list = document.getElementById('stock-list'); list.innerHTML = ''; this.data.items.forEach(i => { list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 text-sm font-bold text-slate-700 flex justify-between"><span>${i.name}</span><span class="text-blue-600 font-black">₹${i.price || '-'}</span></div>`; }); },
+            populateItemSuggestions: function() { const dl = document.getElementById('item-suggestions'); dl.innerHTML = ''; this.data.items.forEach(i => { dl.innerHTML += `<option value="${i.name}">`; }); },
+            filterHistory: function(type) { ['btn-today', 'btn-month', 'btn-all'].forEach(id => document.getElementById(id).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400"); document.getElementById('btn-'+type).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active"; const todayStr = new Date().toLocaleDateString('en-IN'); const now = new Date(); let filtered = []; if(type === 'today') filtered = this.data.invoices.filter(i => i.date === todayStr); else if(type === 'month') filtered = this.data.invoices.filter(i => { const d = new Date(i.rawDate || i.id); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }); else filtered = this.data.invoices; document.getElementById('hist-total').innerText = filtered.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0).toLocaleString('en-IN', {minimumFractionDigits: 2}); const list = document.getElementById('history-list'); list.innerHTML = ''; if(filtered.length===0) { list.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs">No records</div>'; return; } filtered.forEach(i => { list.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100"><div class="flex justify-between items-start mb-2"><div><div class="flex items-center gap-2 mb-1"><h4 class="font-bold text-slate-800">${i.mode} Sale</h4><span class="badge-paid">PAID</span></div><h2 class="text-xl font-black text-slate-900">₹ ${i.grandTotal}</h2><p class="text-[10px] text-slate-400 mt-1">GST: ${i.gstPercent}%</p></div><div class="text-right"><div class="text-[10px] font-bold text-slate-400">#${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div></div><div class="border-t border-slate-50 pt-3 flex justify-end gap-4 text-slate-400"><button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.downloadBillAction()" class="hover:text-blue-600"><i class="fa-solid fa-download text-lg"></i></button><button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.shareBillAction()" class="hover:text-green-600"><i class="fa-brands fa-whatsapp text-lg"></i></button><button onclick="app.deleteInvoice(${i.id})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash text-lg"></i></button></div></div>`; }); },
+            deleteInvoice: function(id) { const item = this.data.invoices.find(i => i.id === id); if(confirm('Move to Trash?')) { this.moveToTrash(item, 'invoice'); this.data.invoices = this.data.invoices.filter(i => i.id !== id); this.save(); this.filterHistory('today'); this.renderSalesChart(); } },
+            renderSalesChart: function() { const labels = [], data = [], today = new Date(); for(let i=6; i>=0; i--) { const d = new Date(today); d.setDate(today.getDate() - i); const dateStr = d.toLocaleDateString('en-IN'); labels.push(dateStr.slice(0, 5)); data.push(this.data.invoices.filter(inv => inv.date === dateStr).reduce((sum, inv) => sum + parseFloat(inv.grandTotal), 0)); } const ctx = document.getElementById('salesChart').getContext('2d'); if(salesChartInstance) salesChartInstance.destroy(); salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data, backgroundColor: '#3b82f6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } }); },
+            loadSettings: function() { document.getElementById('set-name').value = this.data.shop.shopName; document.getElementById('set-upi').value = this.data.shop.upi || ''; document.getElementById('set-phone').value = this.data.shop.phone; document.getElementById('set-address').value = this.data.shop.address; document.getElementById('set-gstin').value = this.data.shop.gstin || ''; document.getElementById('set-pass').value = this.data.shop.password || ''; },
+            updateProfile: function() { this.data.shop.shopName = document.getElementById('set-name').value; this.data.shop.upi = document.getElementById('set-upi').value; this.data.shop.phone = document.getElementById('set-phone').value; this.data.shop.address = document.getElementById('set-address').value; this.data.shop.gstin = document.getElementById('set-gstin').value; this.data.shop.password = document.getElementById('set-pass').value; this.save(); alert('Profile Updated!'); },
+            exportExcel: function() { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.invoices), "Sales"); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.expenses), "Expenses"); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.items), "Stock"); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.credits), "Credit_Book"); XLSX.writeFile(wb, `DigitMart_Report_${new Date().toISOString().slice(0,10)}.xlsx`); },
+            backupFlow: function() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data)); a.download = `DigitMart_Backup_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); },
+            restore: function(input) { const file = input.files[0]; if(!file) return; const reader = new FileReader(); if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) { reader.onload = function(e) { try { const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'}); if(wb.Sheets["Sales"]) app.data.invoices = XLSX.utils.sheet_to_json(wb.Sheets["Sales"]).reverse(); if(wb.Sheets["Expenses"]) app.data.expenses = XLSX.utils.sheet_to_json(wb.Sheets["Expenses"]); if(wb.Sheets["Stock"]) app.data.items = XLSX.utils.sheet_to_json(wb.Sheets["Stock"]); if(wb.Sheets["Credit_Book"]) app.data.credits = XLSX.utils.sheet_to_json(wb.Sheets["Credit_Book"]); app.save(); alert('Excel Restored!'); location.reload(); } catch(err) { alert('Error reading Excel'); } }; reader.readAsArrayBuffer(file); } else { reader.onload = function(e) { try { const d = JSON.parse(e.target.result); if(d.shop && d.invoices) { localStorage.setItem(DB_KEY, JSON.stringify(d)); alert('Restored!'); location.reload(); } } catch(err) { alert('Corrupt JSON'); } }; reader.readAsText(file); } },
+            shareDigitTools: function() { const t = `Check out DigitPhone by DigitMart: https://digitsync.github.io/DigitPhone/`; window.open(`https://wa.me/?text=${encodeURIComponent(t)}`, '_blank'); }
         };
         window.onload = () => app.init();
     </script>
