@@ -9,6 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Chart.js for Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for Excel Export & Restore -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -30,10 +32,9 @@
                 padding: 0;
                 background: white;
                 color: black;
-                font-family: Arial, sans-serif; /* Standard font for invoices */
+                font-family: Arial, sans-serif;
             }
             @page { size: A4; margin: 0; }
-            /* Hide non-print elements */
             #app-interface, #view-login, #view-setup, #success-modal { display: none !important; }
         }
 
@@ -144,8 +145,10 @@
                         <span class="font-mono font-bold text-slate-800" id="bill-inv-no">#INV-0000</span>
                     </div>
 
-                    <div class="mb-4">
-                        <input id="bill-cust-phone" type="number" placeholder="Customer Phone (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition">
+                    <!-- Customer Details -->
+                    <div class="mb-4 space-y-3">
+                        <input id="bill-cust-name" placeholder="Customer Name (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
+                        <input id="bill-cust-phone" type="number" placeholder="Customer Phone (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
                     </div>
 
                     <div class="space-y-4">
@@ -277,14 +280,18 @@
                     
                     <!-- Backup & Restore -->
                     <div class="grid grid-cols-2 gap-3 mt-2">
-                        <button onclick="app.backupFlow()" class="bg-slate-100 text-slate-700 py-2 rounded-lg font-bold border border-slate-200 text-xs">
-                            <i class="fa-solid fa-download"></i> Backup Data
+                        <button onclick="app.exportExcel()" class="bg-green-100 text-green-700 py-2 rounded-lg font-bold border border-green-200 text-xs flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-file-excel text-lg"></i> Excel Backup
                         </button>
-                        <label class="bg-slate-100 text-slate-700 py-2 rounded-lg font-bold border border-slate-200 text-xs text-center cursor-pointer">
-                            <i class="fa-solid fa-upload"></i> Restore Data
-                            <input type="file" class="hidden" onchange="app.restore(this)">
-                        </label>
+                        <button onclick="app.backupFlow()" class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold border border-blue-200 text-xs flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-download text-lg"></i> JSON Backup
+                        </button>
                     </div>
+                    
+                    <label class="block bg-slate-100 text-slate-700 py-3 rounded-lg font-bold border-2 border-dashed border-slate-300 text-sm text-center cursor-pointer hover:bg-slate-200 transition mt-4">
+                        <i class="fa-solid fa-upload mr-2"></i> Restore Data (Excel / JSON)
+                        <input type="file" class="hidden" onchange="app.restore(this)" accept=".json,.xlsx,.xls">
+                    </label>
 
                     <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
                 </div>
@@ -340,8 +347,13 @@
             </div>
 
             <!-- Bill To -->
-            <div class="p-2 border-b border-black text-sm">
-                <strong>Bill To:</strong> <span id="inv-cust-phone">Guest</span>
+            <div class="p-2 border-b border-black text-sm flex justify-between">
+                <div>
+                    <strong>Bill To:</strong> <span id="inv-cust-name">Guest</span>
+                </div>
+                <div>
+                    <strong>Ph:</strong> <span id="inv-cust-phone"></span>
+                </div>
             </div>
 
             <!-- Items Table -->
@@ -402,7 +414,7 @@
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v6'; 
+        const DB_KEY = 'digitmart_billbook_v7'; 
         let salesChartInstance = null;
 
         const app = {
@@ -492,6 +504,7 @@
             newBill: function() {
                 this.currentMode = 'Cash';
                 this.updateModeUI();
+                document.getElementById('bill-cust-name').value = '';
                 document.getElementById('bill-item-name').value = '';
                 document.getElementById('bill-amount').value = '';
                 document.getElementById('bill-cust-phone').value = '';
@@ -554,6 +567,7 @@
                 if(!calcs.price || calcs.price <= 0) return alert('Boss, Price to daalo!');
                 
                 const itemName = document.getElementById('bill-item-name').value || 'Sale';
+                const custName = document.getElementById('bill-cust-name').value || 'Guest';
                 const custPhone = document.getElementById('bill-cust-phone').value;
 
                 const inv = {
@@ -568,7 +582,8 @@
                     taxAmount: calcs.taxAmt,
                     grandTotal: calcs.total.toFixed(2),
                     mode: this.currentMode,
-                    phone: custPhone
+                    phone: custPhone,
+                    name: custName
                 };
 
                 this.data.invoices.unshift(inv);
@@ -603,7 +618,8 @@
                 // Invoice Details
                 document.getElementById('inv-no').innerText = inv.no;
                 document.getElementById('inv-date').innerText = inv.date;
-                document.getElementById('inv-cust-phone').innerText = inv.phone || 'Cash Sale';
+                document.getElementById('inv-cust-name').innerText = inv.name || 'Guest';
+                document.getElementById('inv-cust-phone').innerText = inv.phone || '';
 
                 // Table Item
                 const tbody = document.getElementById('inv-items-body');
@@ -621,7 +637,6 @@
                 // Totals
                 document.getElementById('inv-taxable').innerText = inv.rate;
                 
-                // GST Split (Standard half-half logic for CGST/SGST)
                 const tax = parseFloat(inv.taxAmount);
                 const halfTax = (tax / 2).toFixed(2);
                 document.getElementById('inv-cgst').innerText = halfTax;
@@ -811,6 +826,45 @@
                 alert('Profile Updated!');
             },
 
+            // --- EXCEL & BACKUP LOGIC ---
+            exportExcel: function() {
+                const salesData = this.data.invoices.map(inv => ({
+                    Invoice: inv.no,
+                    Date: inv.date,
+                    Customer: inv.name,
+                    Phone: inv.phone,
+                    Item: inv.item,
+                    Rate: inv.rate,
+                    GST: inv.gstPercent + '%',
+                    Total: inv.grandTotal,
+                    Mode: inv.mode
+                }));
+
+                const expData = this.data.expenses.map(exp => ({
+                    Date: exp.date,
+                    Name: exp.name,
+                    Amount: exp.amount
+                }));
+
+                const itemData = this.data.items.map(i => ({
+                    Name: i.name,
+                    Price: i.price
+                }));
+
+                const wb = XLSX.utils.book_new();
+                
+                const wsSales = XLSX.utils.json_to_sheet(salesData);
+                XLSX.utils.book_append_sheet(wb, wsSales, "Sales");
+
+                const wsExp = XLSX.utils.json_to_sheet(expData);
+                XLSX.utils.book_append_sheet(wb, wsExp, "Expenses");
+
+                const wsItems = XLSX.utils.json_to_sheet(itemData);
+                XLSX.utils.book_append_sheet(wb, wsItems, "Stock");
+
+                XLSX.writeFile(wb, `DigitMart_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+            },
+
             backupFlow: function() {
                 const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data));
                 const a = document.createElement('a');
@@ -823,20 +877,77 @@
             restore: function(input) {
                 const file = input.files[0];
                 if(!file) return;
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const restored = JSON.parse(e.target.result);
-                        if(restored.shop && restored.invoices) {
-                            if(confirm('Purana data udd jayega aur naya data aa jayega. Restore karun?')) {
-                                localStorage.setItem(DB_KEY, JSON.stringify(restored));
-                                alert('Data Restore Ho Gaya Boss!');
-                                location.reload();
+
+                if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    // EXCEL RESTORE LOGIC
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, {type: 'array', cellDates: true});
+                            
+                            // Restore Sales
+                            if(workbook.Sheets["Sales"]) {
+                                const sales = XLSX.utils.sheet_to_json(workbook.Sheets["Sales"], {raw: false});
+                                app.data.invoices = sales.map((s, idx) => ({
+                                    id: Date.now() + idx,
+                                    no: s.Invoice || `INV-${idx}`,
+                                    date: s.Date,
+                                    name: s.Customer,
+                                    phone: s.Phone,
+                                    item: s.Item,
+                                    rate: s.Rate,
+                                    gstPercent: parseFloat(s.GST) || 0,
+                                    taxAmount: 0, // Approx
+                                    grandTotal: s.Total,
+                                    mode: s.Mode
+                                })).reverse();
                             }
-                        } else alert('Ye backup file galat hai Boss!');
-                    } catch(err) { alert('File corrupt hai!'); }
-                };
-                reader.readAsText(file);
+                            
+                            // Restore Expenses
+                            if(workbook.Sheets["Expenses"]) {
+                                const expenses = XLSX.utils.sheet_to_json(workbook.Sheets["Expenses"], {raw: false});
+                                app.data.expenses = expenses.map((e, idx) => ({
+                                    id: Date.now() + idx,
+                                    date: e.Date,
+                                    name: e.Name,
+                                    amount: e.Amount
+                                }));
+                            }
+
+                            // Restore Stock
+                            if(workbook.Sheets["Stock"]) {
+                                const items = XLSX.utils.sheet_to_json(workbook.Sheets["Stock"]);
+                                app.data.items = items.map(i => ({ name: i.Name, price: i.Price }));
+                            }
+
+                            app.save();
+                            alert('Excel se Data Restore Ho Gaya Boss!');
+                            location.reload();
+
+                        } catch(err) {
+                            console.error(err);
+                            alert('Excel File me gadbad hai Boss!');
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    // JSON RESTORE LOGIC
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const restored = JSON.parse(e.target.result);
+                            if(restored.shop && restored.invoices) {
+                                if(confirm('Purana data udd jayega. Restore karun?')) {
+                                    localStorage.setItem(DB_KEY, JSON.stringify(restored));
+                                    alert('Data Restore Ho Gaya Boss!');
+                                    location.reload();
+                                }
+                            } else alert('Ye backup file galat hai Boss!');
+                        } catch(err) { alert('File corrupt hai!'); }
+                    };
+                    reader.readAsText(file);
+                }
             }
         };
 
