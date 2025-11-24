@@ -48,6 +48,7 @@
             <input type="password" id="input-pass" placeholder="Password" class="w-full p-3 border border-slate-300 rounded-lg text-center text-lg outline-none focus:border-blue-600 bg-slate-50">
             <button onclick="app.login()" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">OPEN</button>
         </div>
+        <div class="absolute bottom-6 text-xs text-slate-400">Powered by <b>DigitMart</b></div>
     </div>
 
     <!-- SETUP SCREEN -->
@@ -75,7 +76,10 @@
                 <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <h1 id="header-shop-name" class="font-bold text-lg tracking-wide">DigitMart</h1>
+                <div>
+                    <h1 id="header-shop-name" class="font-bold text-lg tracking-wide leading-none">DigitMart</h1>
+                    <p class="text-[9px] opacity-80">BillBook Pro</p>
+                </div>
             </div>
             <div class="flex gap-4 text-white/90">
                 <i class="fa-solid fa-bullhorn cursor-pointer"></i>
@@ -116,6 +120,10 @@
                         <i class="fa-solid fa-sliders text-3xl text-[#0088cc]"></i>
                         <span class="text-sm font-semibold text-slate-600">Settings</span>
                     </button>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <p class="text-[10px] text-slate-400">Powered by <span class="font-bold text-slate-500">DigitMart</span></p>
                 </div>
             </div>
 
@@ -235,6 +243,7 @@
                     <input id="set-address" placeholder="Address" class="w-full p-2 border rounded outline-none text-sm">
                     <input id="set-gstin" placeholder="GSTIN" class="w-full p-2 border rounded outline-none text-sm">
                     <button onclick="app.updateProfile()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold shadow">Update</button>
+                    
                     <div class="grid grid-cols-2 gap-3 mt-2">
                         <button onclick="app.exportExcel()" class="bg-green-100 text-green-700 py-2 rounded-lg font-bold border border-green-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-file-excel text-lg"></i> Excel Backup</button>
                         <button onclick="app.backupFlow()" class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold border border-blue-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-download text-lg"></i> JSON Backup</button>
@@ -243,6 +252,12 @@
                         <i class="fa-solid fa-upload mr-2"></i> Restore Data (Excel / JSON)
                         <input type="file" class="hidden" onchange="app.restore(this)" accept=".json,.xlsx,.xls">
                     </label>
+
+                    <!-- Share DigitTools Button -->
+                    <button onclick="app.shareDigitTools()" class="w-full bg-indigo-100 text-indigo-700 py-3 rounded-lg font-bold border border-indigo-200 text-sm mt-4 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-share-nodes"></i> Share DigitTools (DigitPhone)
+                    </button>
+
                     <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
                 </div>
             </div>
@@ -263,7 +278,6 @@
              <h2 class="text-xl font-bold">Saved!</h2>
              <p class="text-sm text-slate-500 mb-4">What next?</p>
              <div class="flex gap-4 justify-center flex-wrap">
-                 <!-- UPDATED BUTTONS: DOWNLOAD ONLY -->
                  <button onclick="app.downloadBillAction()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center text-sm active:scale-95 transition">
                     <i class="fa-solid fa-download mr-1"></i> Download
                  </button>
@@ -347,12 +361,13 @@
             <div class="mt-16 pt-8 border-t text-center text-xs text-slate-400">
                 <p>Thank you for your business!</p>
                 <p class="mt-1">Payment Info: UPI - <span id="mod-upi"></span></p>
+                <p class="mt-4 font-bold text-slate-300">Powered by DigitMart</p>
             </div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v9'; 
+        const DB_KEY = 'digitmart_billbook_v10'; 
         let salesChartInstance = null;
 
         const app = {
@@ -527,7 +542,6 @@
 
             // --- UPDATED: DOWNLOAD & SHARE ONLY ---
             prepareInvoices: function(inv) {
-                // Populate Modern A4 (For JPG)
                 document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
                 document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
                 document.getElementById('mod-from-name').innerText = this.data.shop.shopName;
@@ -655,7 +669,6 @@
                                 <div class="text-right"><div class="text-[10px] text-slate-400">Sale #${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div>
                             </div>
                             <div class="border-t border-slate-100 pt-3 flex justify-end gap-4 text-slate-500">
-                                <!-- DOWNLOAD BUTTON REPLACING PRINT -->
                                 <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.downloadBillAction()" class="hover:text-blue-600"><i class="fa-solid fa-download text-lg"></i></button>
                                 <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.shareBillAction()" class="hover:text-green-600"><i class="fa-brands fa-whatsapp text-lg"></i></button>
                                 <button onclick="app.deleteInvoice(${i.id})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash text-lg"></i></button>
@@ -745,6 +758,12 @@
                     };
                     reader.readAsText(file);
                 }
+            },
+
+            // --- NEW: Share DigitTools Function ---
+            shareDigitTools: function() {
+                const text = `Hey! Check out DigitPhone by DigitMart for secure tools: https://digitsync.github.io/DigitPhone/`;
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }
         };
         window.onload = () => app.init();
