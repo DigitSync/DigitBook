@@ -11,58 +11,54 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Thermal Font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); 
         
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- MODERN A4 INVOICE (Hidden, used for JPG Capture) --- */
+        /* --- MODERN A4 INVOICE (Hidden) --- */
         #invoice-modern-render {
-            width: 794px; /* A4 Width in px approx */
-            min-height: 1123px;
-            background: white;
-            position: fixed;
-            top: 0;
-            left: -9999px; /* Hidden from view */
-            z-index: -1;
+            width: 794px; min-height: 1123px; background: white; position: fixed; top: 0; left: -9999px; z-index: -1;
         }
 
-        .fab-shadow { box-shadow: 0 4px 15px rgba(23, 114, 230, 0.4); }
-        .fade-in { animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .fab-shadow { box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5); }
+        .card-grad-1 { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .card-grad-2 { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .badge-paid { background-color: #dcfce7; color: #166534; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 700; letter-spacing: 0.5px; }
-        .filter-active { background-color: #0088cc; color: white; border-color: #0088cc; }
+        .badge-paid { background-color: #dcfce7; color: #15803d; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 800; }
+        .filter-active { background-color: #2563eb; color: white; border-color: #2563eb; }
     </style>
 </head>
-<body class="h-screen flex flex-col text-slate-800 select-none bg-slate-100">
+<body class="h-screen flex flex-col text-slate-800 select-none bg-slate-50">
 
     <!-- LOGIN SCREEN -->
     <div id="view-login" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 hidden">
-        <div class="w-20 h-20 bg-blue-700 rounded-xl flex items-center justify-center text-white text-3xl font-bold mb-4 shadow-lg">DM</div>
-        <h1 class="text-2xl font-bold text-slate-800 mb-1">DigitMart</h1>
-        <p class="text-slate-500 mb-8 text-sm">Business Management</p>
+        <div class="w-24 h-24 bg-blue-600 rounded-3xl flex items-center justify-center text-white text-4xl font-black mb-6 shadow-2xl rotate-3">DM</div>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-1">DigitMart</h1>
+        <p class="text-slate-500 mb-8 text-sm font-medium">Secure Business Manager</p>
         <div class="w-full max-w-xs space-y-4">
             <div id="login-shop-display" class="text-center font-bold text-lg text-blue-700 hidden"></div>
-            <input type="password" id="input-pass" placeholder="Password" class="w-full p-3 border border-slate-300 rounded-lg text-center text-lg outline-none focus:border-blue-600 bg-slate-50">
-            <button onclick="app.login()" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">OPEN</button>
+            <input type="password" id="input-pass" placeholder="Enter Password" class="w-full p-4 border-2 border-slate-100 rounded-2xl text-center text-xl outline-none focus:border-blue-600 bg-slate-50 font-bold transition-all">
+            <button onclick="app.login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-xl text-lg active:scale-95 transition">UNLOCK APP</button>
         </div>
-        <div class="absolute bottom-6 text-xs text-slate-400">Powered by <b>DigitMart</b></div>
+        <div class="absolute bottom-8 text-xs font-bold text-slate-300">Powered by DigitMart</div>
     </div>
 
     <!-- SETUP SCREEN -->
-    <div id="view-setup" class="fixed inset-0 z-50 bg-slate-100 flex flex-col items-center justify-center p-6 hidden">
-        <div class="bg-white w-full max-w-md p-6 rounded-2xl shadow-xl">
-            <h2 class="text-xl font-bold mb-4 text-center text-slate-800">Setup Shop</h2>
-            <form onsubmit="app.saveSetup(event)" class="space-y-3">
-                <input name="shopName" placeholder="Shop Name" required class="w-full p-3 border rounded-lg bg-slate-50 outline-none focus:border-blue-500 font-semibold">
-                <input name="address" placeholder="Address" required class="w-full p-3 border rounded-lg bg-slate-50 outline-none focus:border-blue-500 font-semibold">
-                <input name="phone" placeholder="Phone No" required type="number" class="w-full p-3 border rounded-lg bg-slate-50 outline-none focus:border-blue-500 font-semibold">
-                <input name="upi" placeholder="UPI ID (e.g. 98xxx@ybl)" class="w-full p-3 border rounded-lg bg-slate-50 outline-none focus:border-blue-500 font-semibold">
-                <input name="gstin" placeholder="Shop GSTIN (Optional)" class="w-full p-3 border rounded-lg bg-slate-50 outline-none focus:border-blue-500 font-semibold">
-                <input name="password" placeholder="Set Password" required type="password" class="w-full p-3 border border-blue-200 rounded-lg bg-blue-50 outline-none focus:border-blue-500 font-bold">
-                <button type="submit" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg mt-2">START</button>
+    <div id="view-setup" class="fixed inset-0 z-50 bg-slate-50 flex flex-col items-center justify-center p-6 hidden">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 text-center text-slate-800">🚀 Setup Your Shop</h2>
+            <form onsubmit="app.saveSetup(event)" class="space-y-4">
+                <input name="shopName" placeholder="Shop Name" required class="w-full p-3 border-2 rounded-xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input name="address" placeholder="Address" required class="w-full p-3 border-2 rounded-xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input name="phone" placeholder="Phone No" required type="number" class="w-full p-3 border-2 rounded-xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input name="upi" placeholder="UPI ID (Optional)" class="w-full p-3 border-2 rounded-xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input name="gstin" placeholder="GSTIN (Optional)" class="w-full p-3 border-2 rounded-xl bg-slate-50 outline-none focus:border-blue-500 font-bold">
+                <input name="password" placeholder="Create Password (Optional)" type="password" class="w-full p-3 border-2 border-blue-100 rounded-xl bg-blue-50 outline-none focus:border-blue-500 font-bold">
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg mt-4 text-lg">GET STARTED</button>
             </form>
         </div>
     </div>
@@ -71,97 +67,98 @@
     <div id="app-interface" class="flex-1 flex flex-col h-full hidden">
         
         <!-- HEADER -->
-        <div class="bg-[#006699] px-4 py-3 shadow-md sticky top-0 z-30 flex justify-between items-center text-white">
+        <div class="bg-white px-5 py-4 shadow-sm border-b sticky top-0 z-30 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fa-solid fa-arrow-left text-slate-600"></i>
                 </button>
                 <div>
-                    <h1 id="header-shop-name" class="font-bold text-lg tracking-wide leading-none">DigitMart</h1>
-                    <p class="text-[9px] opacity-80">BillBook Pro</p>
+                    <h1 id="header-shop-name" class="font-black text-xl text-slate-800 leading-none tracking-tight">DigitMart</h1>
+                    <p class="text-[10px] font-bold text-blue-600 tracking-wide mt-0.5">PRO BILLING</p>
                 </div>
             </div>
-            <div class="flex gap-4 text-white/90">
-                <i class="fa-solid fa-bullhorn cursor-pointer"></i>
-                <i class="fa-solid fa-bell cursor-pointer"></i>
+            <div onclick="app.nav('settings')" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100 cursor-pointer hover:text-blue-600">
+                <i class="fa-solid fa-gear"></i>
             </div>
         </div>
 
         <!-- CONTENT AREA -->
-        <div class="flex-1 overflow-y-auto bg-slate-100 relative p-3" id="main-content">
+        <div class="flex-1 overflow-y-auto bg-slate-50 relative p-4" id="main-content">
             
             <!-- DASHBOARD -->
-            <div id="view-dashboard" class="space-y-4 pb-24 fade-in">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-[#e8f5e9] p-4 rounded-lg shadow-sm border border-green-100 flex flex-col justify-between h-24">
-                        <span class="text-sm font-semibold text-slate-700">Total Sales</span>
-                        <h2 class="text-xl font-bold text-green-600">₹ <span id="dash-total">0</span></h2>
+            <div id="view-dashboard" class="space-y-5 pb-28 fade-in">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card-grad-1 p-5 rounded-2xl shadow-lg shadow-blue-200 text-white relative overflow-hidden">
+                        <i class="fa-solid fa-chart-line absolute -bottom-2 -right-2 text-6xl text-white/20"></i>
+                        <span class="text-xs font-bold opacity-90 uppercase tracking-wider">Total Sales</span>
+                        <h2 class="text-2xl font-black mt-1">₹ <span id="dash-total">0</span></h2>
                     </div>
-                    <div class="bg-[#ffebee] p-4 rounded-lg shadow-sm border border-red-100 flex flex-col justify-between h-24">
-                        <span class="text-sm font-semibold text-slate-700">My Expenses</span>
-                        <h2 class="text-xl font-bold text-red-600">₹ <span id="dash-expense">0</span></h2>
+                    <div class="card-grad-2 p-5 rounded-2xl shadow-lg shadow-red-200 text-white relative overflow-hidden">
+                        <i class="fa-solid fa-wallet absolute -bottom-2 -right-2 text-6xl text-white/20"></i>
+                        <span class="text-xs font-bold opacity-90 uppercase tracking-wider">Expenses</span>
+                        <h2 class="text-2xl font-black mt-1">₹ <span id="dash-expense">0</span></h2>
                     </div>
                 </div>
 
-                <!-- UPDATED GRID -->
                 <div class="grid grid-cols-3 gap-3">
-                    <button onclick="app.nav('history')" class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-24">
-                        <i class="fa-solid fa-file-invoice text-2xl text-[#0088cc]"></i>
+                    <button onclick="app.nav('history')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-solid fa-file-invoice text-xl"></i></div>
                         <span class="text-xs font-bold text-slate-600">Sale List</span>
                     </button>
-                    <button onclick="app.nav('items')" class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-24">
-                        <i class="fa-solid fa-cart-shopping text-2xl text-[#0088cc]"></i>
-                        <span class="text-xs font-bold text-slate-600">Items</span>
+                    <button onclick="app.nav('items')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
+                        <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i class="fa-solid fa-box-open text-xl"></i></div>
+                        <span class="text-xs font-bold text-slate-600">Stock</span>
                     </button>
-                    <button onclick="app.nav('expenses')" class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-24">
-                        <i class="fa-solid fa-wallet text-2xl text-[#0088cc]"></i>
+                    <button onclick="app.nav('expenses')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><i class="fa-solid fa-money-bill-wave text-xl"></i></div>
                         <span class="text-xs font-bold text-slate-600">Expenses</span>
                     </button>
-                    <!-- CREDIT BOOK BUTTON -->
-                    <button onclick="app.nav('credit')" class="bg-orange-50 p-4 rounded-lg shadow-sm border border-orange-200 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-24 col-span-2">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-book-open text-2xl text-orange-600"></i>
-                            <span class="text-sm font-bold text-orange-700">Credit Book (Udhaar)</span>
-                        </div>
-                        <span class="text-[10px] text-orange-500">Track EMI & Baki</span>
-                    </button>
                     
-                    <button onclick="app.nav('settings')" class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-24">
-                        <i class="fa-solid fa-sliders text-2xl text-[#0088cc]"></i>
-                        <span class="text-xs font-bold text-slate-600">Settings</span>
+                    <!-- CREDIT BOOK BUTTON -->
+                    <button onclick="app.nav('credit')" class="col-span-3 bg-white p-4 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between active:scale-95 transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="fa-solid fa-book-open text-xl"></i></div>
+                            <div class="text-left">
+                                <span class="block text-sm font-bold text-slate-800">Credit Book (Udhaar)</span>
+                                <span class="text-[10px] font-bold text-slate-400">Manage Dues & EMI</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300"></i>
                     </button>
-                </div>
-                
-                <div class="text-center mt-8">
-                    <p class="text-[10px] text-slate-400">Powered by <span class="font-bold text-slate-500">DigitMart</span></p>
                 </div>
             </div>
 
             <!-- NEW SALE SCREEN -->
             <div id="view-billing" class="hidden h-full flex flex-col fade-in">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex-1 overflow-y-auto">
-                    <div class="flex justify-between items-center mb-4 border-b pb-2">
-                        <span class="text-xs font-bold text-slate-500">Invoice No</span>
-                        <span class="font-mono font-bold text-slate-800" id="bill-inv-no">#INV-0000</span>
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex-1 overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Invoice #</span>
+                        <span class="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded" id="bill-inv-no">INV-000</span>
                     </div>
-                    <div class="mb-4 space-y-3">
-                        <input id="bill-cust-name" placeholder="Customer Name (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
-                        <input id="bill-cust-phone" type="number" placeholder="Customer Phone (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
-                    </div>
+                    
                     <div class="space-y-4">
+                        <!-- Customer -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <input id="bill-cust-name" placeholder="Customer Name" class="w-full bg-transparent outline-none text-sm font-bold mb-2 placeholder-slate-400">
+                            <div class="h-px bg-slate-200 mb-2"></div>
+                            <input id="bill-cust-phone" type="number" placeholder="Phone Number" class="w-full bg-transparent outline-none text-sm font-bold placeholder-slate-400">
+                        </div>
+
+                        <!-- Items -->
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">Item Name</label>
-                            <input id="bill-item-name" list="item-suggestions" oninput="app.checkItemPrice()" placeholder="Enter Item Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-700">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Item Details</label>
+                            <input id="bill-item-name" list="item-suggestions" oninput="app.checkItemPrice()" placeholder="Search Item..." class="w-full p-3 mt-1 bg-white border-2 border-slate-100 rounded-xl outline-none font-bold text-slate-700 focus:border-blue-500 transition">
                             <datalist id="item-suggestions"></datalist>
                         </div>
-                        <div class="flex gap-2">
+
+                        <div class="flex gap-3">
                             <div class="flex-1">
-                                <label class="text-xs font-bold text-slate-400 uppercase">Price</label>
-                                <input id="bill-amount" type="number" placeholder="₹ Rate" class="w-full p-3 bg-blue-50 border border-blue-200 rounded-lg outline-none text-xl font-bold text-blue-800" onkeyup="app.calculateTotal()">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Price (₹)</label>
+                                <input id="bill-amount" type="number" placeholder="0" class="w-full p-3 mt-1 bg-white border-2 border-slate-100 rounded-xl outline-none text-lg font-black text-slate-800 focus:border-blue-500 transition" onkeyup="app.calculateTotal()">
                             </div>
                             <div class="w-24">
-                                <label class="text-xs font-bold text-slate-400 uppercase">GST %</label>
-                                <select id="bill-gst" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-slate-700" onchange="app.calculateTotal()">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">GST %</label>
+                                <select id="bill-gst" class="w-full p-3 mt-1 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none font-bold text-slate-600" onchange="app.calculateTotal()">
                                     <option value="0">0%</option>
                                     <option value="5">5%</option>
                                     <option value="12">12%</option>
@@ -170,247 +167,236 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex justify-between items-center">
-                             <span class="text-sm font-bold text-slate-500">Total with GST:</span>
-                             <span class="text-xl font-bold text-green-600">₹ <span id="bill-final-total">0.00</span></span>
+
+                        <div class="flex justify-between items-center px-2">
+                             <span class="text-xs font-bold text-slate-400">Total Payable</span>
+                             <span class="text-2xl font-black text-blue-600">₹ <span id="bill-final-total">0.00</span></span>
                         </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Payment Type</label>
-                            <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-lg">
-                                <button onclick="app.setMode('Cash')" id="mode-Cash" class="mode-btn py-2 rounded-md text-sm font-bold bg-white text-blue-700 shadow-sm transition">Cash</button>
-                                <button onclick="app.setMode('UPI')" id="mode-UPI" class="mode-btn py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition">UPI</button>
-                                <button onclick="app.setMode('Credit')" id="mode-Credit" class="mode-btn py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition">Credit</button>
-                            </div>
+
+                        <!-- Mode -->
+                        <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-xl">
+                            <button onclick="app.setMode('Cash')" id="mode-Cash" class="mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition">Cash</button>
+                            <button onclick="app.setMode('UPI')" id="mode-UPI" class="mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition">UPI</button>
+                            <button onclick="app.setMode('Credit')" id="mode-Credit" class="mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition">Credit</button>
                         </div>
-                        <div id="live-qr-container" class="hidden flex flex-col items-center justify-center p-4 bg-white border-2 border-dashed border-blue-200 rounded-xl">
-                            <div id="live-qrcode"></div>
-                            <p class="text-[10px] text-slate-400 mt-2">Scan to Pay</p>
+                        
+                        <div id="live-qr-container" class="hidden flex flex-col items-center justify-center p-4 bg-blue-50 border-2 border-dashed border-blue-200 rounded-2xl">
+                            <div id="live-qrcode" class="bg-white p-1 rounded-lg"></div>
+                            <p class="text-[10px] font-bold text-blue-400 mt-2 uppercase tracking-wide">Scan to Pay</p>
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 grid grid-cols-2 gap-3 pb-16">
-                    <button onclick="app.saveBill(true)" class="bg-slate-700 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Save & New</button>
-                    <button onclick="app.saveBill(false)" class="bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Save</button>
+                <div class="mt-4 grid grid-cols-2 gap-3 pb-24">
+                    <button onclick="app.saveBill(true)" class="bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Save & New</button>
+                    <button onclick="app.saveBill(false)" class="bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition">Save Bill</button>
                 </div>
             </div>
 
-            <!-- CREDIT BOOK SCREEN (NEW) -->
-            <div id="view-credit" class="hidden fade-in pb-20">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-orange-200 mb-4">
-                    <h3 class="text-sm font-bold text-orange-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> Add New Udhaar/EMI</h3>
+            <!-- CREDIT BOOK -->
+            <div id="view-credit" class="hidden fade-in pb-28">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-orange-100 mb-5">
+                    <h3 class="text-sm font-black text-orange-600 mb-4 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> New Entry</h3>
                     <div class="space-y-3">
-                        <input id="cred-name" placeholder="Customer Name" class="w-full p-2 border rounded-lg outline-none text-sm">
-                        <div class="flex gap-2">
-                            <input id="cred-phone" type="number" placeholder="Phone No" class="flex-1 p-2 border rounded-lg outline-none text-sm">
-                            <input id="cred-amt" type="number" placeholder="Amount ₹" class="w-24 p-2 border rounded-lg outline-none text-sm font-bold">
+                        <input id="cred-name" placeholder="Name" class="w-full p-3 bg-slate-50 border-none rounded-xl outline-none text-sm font-bold">
+                        <div class="flex gap-3">
+                            <input id="cred-phone" type="number" placeholder="Phone" class="flex-1 p-3 bg-slate-50 border-none rounded-xl outline-none text-sm font-bold">
+                            <input id="cred-amt" type="number" placeholder="₹ Amount" class="w-28 p-3 bg-orange-50 border border-orange-100 rounded-xl outline-none text-sm font-black text-orange-600">
                         </div>
-                        <input id="cred-note" placeholder="Item / Note (Optional)" class="w-full p-2 border rounded-lg outline-none text-sm">
-                        <button onclick="app.addCredit()" class="w-full bg-orange-500 text-white py-2 rounded-lg font-bold text-sm shadow-sm">Add to Credit Book</button>
+                        <input id="cred-note" placeholder="Note (e.g. EMI)" class="w-full p-3 bg-slate-50 border-none rounded-xl outline-none text-sm font-bold">
+                        <button onclick="app.addCredit()" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold text-sm shadow-md active:scale-95">Add to Udhaar</button>
                     </div>
+                </div>
+                <div id="credit-list" class="space-y-3"></div>
+            </div>
+
+            <!-- HISTORY / SALE LIST -->
+            <div id="view-history" class="hidden pb-28 fade-in">
+                <div class="flex gap-3 mb-5">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Total Sale</span>
+                        <h2 class="text-lg font-black text-slate-800">₹ <span id="hist-total">0.00</span></h2>
+                    </div>
+                    <button onclick="app.exportExcel()" class="bg-green-100 px-4 rounded-2xl text-green-700 font-bold text-xs border border-green-200 active:scale-95">
+                        <i class="fa-solid fa-file-excel text-lg block mb-1"></i> Export
+                    </button>
                 </div>
                 
-                <h3 class="text-xs font-bold text-slate-400 uppercase ml-1 mb-2">Pending Dues</h3>
-                <div id="credit-list" class="space-y-2"></div>
-            </div>
-
-            <!-- EXPENSES, ITEMS, HISTORY -->
-            <div id="view-expenses" class="hidden fade-in pb-20">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4">
-                    <h3 class="text-sm font-bold text-slate-700 mb-3">Add Expense</h3>
-                    <div class="flex gap-2 mb-2">
-                        <input id="exp-name" placeholder="Name" class="flex-1 p-2 border rounded-lg outline-none text-sm">
-                        <input id="exp-amt" type="number" placeholder="₹" class="w-24 p-2 border rounded-lg outline-none text-sm font-bold">
-                    </div>
-                    <button onclick="app.addExpense()" class="w-full bg-red-500 text-white py-2 rounded-lg font-bold text-sm shadow-sm">Add Expense</button>
-                </div>
-                <div id="expense-list" class="space-y-2"></div>
-            </div>
-
-            <div id="view-items" class="hidden fade-in pb-20">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4">
-                    <h3 class="text-sm font-bold text-slate-700 mb-3">Add Stock Item</h3>
-                    <div class="flex gap-2">
-                        <div class="flex-1 space-y-2">
-                            <input id="stock-name" placeholder="Item" class="w-full p-2 border rounded-lg outline-none text-sm">
-                            <input id="stock-price" type="number" placeholder="₹" class="w-full p-2 border rounded-lg outline-none text-sm">
-                        </div>
-                        <button onclick="app.addStockItem()" class="bg-blue-600 text-white px-4 rounded-lg font-bold text-sm shadow-sm">Add</button>
-                    </div>
-                </div>
-                <div id="stock-list" class="space-y-2"></div>
-            </div>
-
-            <div id="view-history" class="hidden pb-20 fade-in bg-[#f0f4f8]">
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                        <span class="text-xs text-slate-500 font-semibold">Total Sale</span>
-                        <h2 class="text-lg font-bold text-slate-800">₹ <span id="hist-total">0.00</span></h2>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
-                        <span class="text-xs text-slate-500 font-semibold">Balance Due</span>
-                        <h2 class="text-lg font-bold text-red-500">₹ 0.00</h2>
-                    </div>
-                </div>
-                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100 mb-4">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase mb-2">Last 7 Days Trend</h3>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-5">
                     <div class="h-32 w-full"><canvas id="salesChart"></canvas></div>
                 </div>
-                <div class="flex bg-white p-1 rounded-lg mb-4 shadow-sm border border-slate-100">
-                    <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-1.5 text-xs font-bold rounded transition-all filter-active">Today</button>
-                    <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500">This Month</button>
-                    <button onclick="app.filterHistory('all')" id="btn-all" class="flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500">All</button>
+
+                <div class="flex bg-white p-1 rounded-xl mb-5 shadow-sm border border-slate-100">
+                    <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active">Today</button>
+                    <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400">Month</button>
+                    <button onclick="app.filterHistory('all')" id="btn-all" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400">All</button>
                 </div>
                 <div id="history-list" class="space-y-3"></div>
             </div>
 
-            <div id="view-settings" class="hidden pb-20 fade-in">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
-                    <h2 class="font-bold border-b pb-2">Settings</h2>
-                    <input id="set-name" placeholder="Shop Name" class="w-full p-2 border rounded outline-none text-sm">
-                    <input id="set-upi" placeholder="UPI ID" class="w-full p-2 border rounded outline-none text-sm">
-                    <input id="set-phone" placeholder="Phone" class="w-full p-2 border rounded outline-none text-sm">
-                    <input id="set-address" placeholder="Address" class="w-full p-2 border rounded outline-none text-sm">
-                    <input id="set-gstin" placeholder="GSTIN" class="w-full p-2 border rounded outline-none text-sm">
-                    <button onclick="app.updateProfile()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold shadow">Update</button>
-                    <div class="grid grid-cols-2 gap-3 mt-2">
-                        <button onclick="app.exportExcel()" class="bg-green-100 text-green-700 py-2 rounded-lg font-bold border border-green-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-file-excel text-lg"></i> Excel Backup</button>
-                        <button onclick="app.backupFlow()" class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold border border-blue-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-download text-lg"></i> JSON Backup</button>
+            <!-- EXPENSES & ITEMS (Hidden in nav, shown on demand) -->
+            <div id="view-expenses" class="hidden fade-in pb-28">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
+                    <h3 class="font-bold text-slate-700 mb-3">Add Expense</h3>
+                    <div class="flex gap-3 mb-3">
+                        <input id="exp-name" placeholder="Details" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                        <input id="exp-amt" type="number" placeholder="₹" class="w-24 p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
                     </div>
-                    <label class="block bg-slate-100 text-slate-700 py-3 rounded-lg font-bold border-2 border-dashed border-slate-300 text-sm text-center cursor-pointer hover:bg-slate-200 transition mt-4">
-                        <i class="fa-solid fa-upload mr-2"></i> Restore Data (Excel / JSON)
-                        <input type="file" class="hidden" onchange="app.restore(this)" accept=".json,.xlsx,.xls">
+                    <button onclick="app.addExpense()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold text-sm shadow-md">Add Expense</button>
+                </div>
+                <div id="expense-list" class="space-y-2"></div>
+            </div>
+
+            <div id="view-items" class="hidden fade-in pb-28">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-5">
+                    <h3 class="font-bold text-slate-700 mb-3">Add Stock</h3>
+                    <div class="flex gap-3 mb-3">
+                        <input id="stock-name" placeholder="Item Name" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                        <input id="stock-price" type="number" placeholder="₹ Price" class="w-24 p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    </div>
+                    <button onclick="app.addStockItem()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-md">Add Item</button>
+                </div>
+                <div id="stock-list" class="space-y-2"></div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div id="view-settings" class="hidden pb-28 fade-in">
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                    <h2 class="font-black text-lg border-b pb-2">Settings</h2>
+                    <input id="set-name" placeholder="Shop Name" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-phone" placeholder="Phone" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-address" placeholder="Address" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-upi" placeholder="UPI ID" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-gstin" placeholder="GSTIN" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-pass" placeholder="App Password (Leave empty to remove)" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    
+                    <button onclick="app.updateProfile()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-lg">Update Profile</button>
+                    
+                    <div class="h-px bg-slate-100 my-2"></div>
+                    
+                    <button onclick="app.showTrash()" class="w-full bg-red-50 text-red-500 py-3 rounded-xl font-bold border border-red-100 text-sm flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-trash"></i> Trash Bin (Restore)
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="app.exportExcel()" class="bg-green-50 text-green-700 py-3 rounded-xl font-bold border border-green-100 text-xs flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-file-excel text-lg"></i> Export Excel
+                        </button>
+                        <button onclick="app.backupFlow()" class="bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 text-xs flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-download text-lg"></i> JSON Backup
+                        </button>
+                    </div>
+                    
+                    <label class="block bg-slate-50 text-slate-500 py-3 rounded-xl font-bold border-2 border-dashed border-slate-200 text-xs text-center cursor-pointer hover:bg-slate-100 transition">
+                        <i class="fa-solid fa-upload mr-1"></i> Restore Data (Excel/JSON)
+                        <input type="file" class="hidden" onchange="app.restore(this)">
                     </label>
-                    <button onclick="app.shareDigitTools()" class="w-full bg-indigo-100 text-indigo-700 py-3 rounded-lg font-bold border border-indigo-200 text-sm mt-4 flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes"></i> Share DigitTools (DigitPhone)</button>
-                    <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
+
+                    <button onclick="app.shareDigitTools()" class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-bold border border-indigo-100 text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-share-nodes"></i> Share DigitTools
+                    </button>
                 </div>
             </div>
+
+            <!-- TRASH BIN VIEW (Hidden Overlay) -->
+            <div id="view-trash" class="fixed inset-0 bg-white z-40 hidden flex flex-col">
+                <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+                    <h2 class="font-bold text-lg">Trash Bin <span class="text-xs font-normal text-slate-500">(7 Days Retention)</span></h2>
+                    <button onclick="document.getElementById('view-trash').classList.add('hidden')" class="w-8 h-8 bg-slate-200 rounded-full font-bold">✕</button>
+                </div>
+                <div id="trash-list" class="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50"></div>
+            </div>
+
         </div>
 
-        <!-- FAB -->
+        <!-- FAB (Bigger Plus Button) -->
         <div id="fab-btn" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-            <button onclick="app.newBill()" class="w-14 h-14 bg-[#0088cc] rounded-full text-white text-2xl shadow-xl fab-shadow flex items-center justify-center border-4 border-white active:scale-90 transition">
+            <button onclick="app.newBill()" class="w-20 h-20 bg-blue-600 rounded-full text-white text-3xl shadow-2xl fab-shadow flex items-center justify-center border-[6px] border-slate-50 active:scale-90 transition hover:scale-105 hover:bg-blue-700">
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
     </div>
 
     <!-- SUCCESS MODAL -->
-    <div id="success-modal" class="fixed inset-0 z-[60] bg-black/80 flex flex-col items-center justify-center p-4 hidden">
-        <div class="bg-white p-6 rounded-xl w-[300px] text-center mb-4">
-             <i class="fa-solid fa-circle-check text-5xl text-green-500 mb-2"></i>
-             <h2 class="text-xl font-bold">Saved!</h2>
-             <p class="text-sm text-slate-500 mb-4">What next?</p>
-             <div class="flex gap-4 justify-center flex-wrap">
-                 <button onclick="app.downloadBillAction()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center text-sm active:scale-95 transition">
-                    <i class="fa-solid fa-download mr-1"></i> Download
+    <div id="success-modal" class="fixed inset-0 z-[60] bg-black/90 flex flex-col items-center justify-center p-4 hidden backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
+             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+                 <i class="fa-solid fa-check"></i>
+             </div>
+             <h2 class="text-2xl font-black text-slate-800">Saved Successfully!</h2>
+             <p class="text-sm text-slate-500 mb-6 font-bold">Invoice Generated</p>
+             <div class="grid grid-cols-2 gap-4">
+                 <button onclick="app.downloadBillAction()" class="bg-slate-800 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-download"></i> Download
                  </button>
-                 <button onclick="app.shareBillAction()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center text-sm active:scale-95 transition">
-                    <i class="fa-brands fa-whatsapp mr-1"></i> Share
+                 <button onclick="app.shareBillAction()" class="bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Share
                  </button>
              </div>
-             <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="text-slate-400 text-xs font-bold mt-4 underline">Close</button>
+             <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="text-slate-400 text-xs font-bold mt-6 hover:text-slate-600">Close Window</button>
         </div>
     </div>
 
-    <!-- 2. MODERN A4 INVOICE (Hidden, for JPG Capture) -->
+    <!-- HIDDEN INVOICE ELEMENTS (Same as before) -->
     <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans">
-        <!-- Header -->
         <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-4xl font-bold" id="mod-shop-name">SHOP NAME</h1>
-                <p class="text-sm mt-1 opacity-80">INVOICE</p>
-            </div>
-            <div class="text-right">
-                <h2 class="text-2xl font-bold" id="mod-inv-total">₹ 0.00</h2>
-            </div>
+            <div><h1 class="text-4xl font-bold" id="mod-shop-name">SHOP</h1><p class="text-sm mt-1 opacity-80">INVOICE</p></div>
+            <div class="text-right"><h2 class="text-2xl font-bold" id="mod-inv-total">₹0</h2></div>
         </div>
-
         <div class="p-8">
-            <!-- Info Grid -->
             <div class="flex justify-between mb-8">
-                <div class="w-1/2">
-                    <p class="text-xs font-bold text-slate-400 uppercase">From</p>
-                    <p class="font-bold" id="mod-from-name">Shop Name</p>
-                    <p class="text-sm text-slate-600" id="mod-from-addr">Address</p>
-                    <p class="text-sm text-slate-600" id="mod-from-phone">Phone</p>
-                    <p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p>
-                </div>
-                <div class="w-1/2 text-right">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Bill To</p>
-                    <p class="font-bold" id="mod-to-name">Guest</p>
-                    <p class="text-sm text-slate-600" id="mod-to-phone">Phone</p>
-                    <div class="mt-4">
-                        <p class="text-sm"><span class="font-bold">Invoice #:</span> <span id="mod-inv-no"></span></p>
-                        <p class="text-sm"><span class="font-bold">Date:</span> <span id="mod-inv-date"></span></p>
-                    </div>
-                </div>
+                <div class="w-1/2"><p class="text-xs font-bold text-slate-400 uppercase">From</p><p class="font-bold" id="mod-from-name"></p><p class="text-sm text-slate-600" id="mod-from-addr"></p><p class="text-sm text-slate-600" id="mod-from-phone"></p><p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p></div>
+                <div class="w-1/2 text-right"><p class="text-xs font-bold text-slate-400 uppercase">Bill To</p><p class="font-bold" id="mod-to-name"></p><p class="text-sm text-slate-600" id="mod-to-phone"></p><div class="mt-4"><p class="text-sm"><span class="font-bold">Inv #:</span> <span id="mod-inv-no"></span></p><p class="text-sm"><span class="font-bold">Date:</span> <span id="mod-inv-date"></span></p></div></div>
             </div>
-
-            <!-- Table -->
-            <table class="w-full mb-8">
-                <thead class="bg-[#003366] text-white">
-                    <tr>
-                        <th class="p-3 text-left text-sm">DESCRIPTION</th>
-                        <th class="p-3 text-center text-sm">QTY</th>
-                        <th class="p-3 text-center text-sm">PRICE</th>
-                        <th class="p-3 text-center text-sm">GST</th>
-                        <th class="p-3 text-right text-sm">AMOUNT</th>
-                    </tr>
-                </thead>
-                <tbody id="mod-tbody" class="text-sm text-slate-700">
-                    <!-- Row -->
-                </tbody>
-            </table>
-
-            <!-- Totals -->
-            <div class="flex justify-end">
-                <div class="w-64">
-                    <div class="flex justify-between py-1 border-b">
-                        <span class="text-slate-500">Subtotal</span>
-                        <span id="mod-subtotal">0.00</span>
-                    </div>
-                    <div class="flex justify-between py-1 border-b">
-                        <span class="text-slate-500">Tax (GST)</span>
-                        <span id="mod-tax">0.00</span>
-                    </div>
-                    <div class="flex justify-between py-2 font-bold text-lg text-[#003366]">
-                        <span>TOTAL</span>
-                        <span>₹ <span id="mod-grand-total">0.00</span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-16 pt-8 border-t text-center text-xs text-slate-400">
-                <p>Thank you for your business!</p>
-                <p class="mt-1">Payment Info: UPI - <span id="mod-upi"></span></p>
-                <p class="mt-4 font-bold text-slate-300">Powered by DigitMart</p>
-            </div>
+            <table class="w-full mb-8"><thead class="bg-[#003366] text-white"><tr><th class="p-3 text-left text-sm">ITEM</th><th class="p-3 text-center text-sm">PRICE</th><th class="p-3 text-center text-sm">GST</th><th class="p-3 text-right text-sm">AMT</th></tr></thead><tbody id="mod-tbody" class="text-sm text-slate-700"></tbody></table>
+            <div class="flex justify-end"><div class="w-64"><div class="flex justify-between py-1 border-b"><span class="text-slate-500">Tax</span><span id="mod-tax">0.00</span></div><div class="flex justify-between py-2 font-bold text-lg text-[#003366]"><span>TOTAL</span><span>₹ <span id="mod-grand-total">0.00</span></span></div></div></div>
+            <div class="mt-16 pt-8 border-t text-center text-xs text-slate-400"><p>Thank you!</p><p class="mt-1">UPI: <span id="mod-upi"></span></p><p class="mt-4 font-bold text-slate-300">Powered by DigitMart</p></div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v11'; 
+        const DB_KEY = 'digitmart_billbook_v12'; // UPDATED KEY for Migration
+        const OLD_DB_KEY = 'digitmart_billbook_v11';
         let salesChartInstance = null;
 
         const app = {
-            data: { shop: null, invoices: [], expenses: [], items: [], credits: [] }, // Credits Added
+            data: { shop: null, invoices: [], expenses: [], items: [], credits: [], trash: [] },
             currentMode: 'Cash',
             currentInv: null,
 
             init: function() {
-                const stored = localStorage.getItem(DB_KEY);
+                // --- MIGRATION LOGIC ---
+                let stored = localStorage.getItem(DB_KEY);
+                if(!stored) {
+                    const oldData = localStorage.getItem(OLD_DB_KEY);
+                    if(oldData) {
+                        stored = oldData; // Auto migrate v11 data
+                        console.log("Migrated from v11");
+                    }
+                }
+
                 if(stored) {
                     this.data = JSON.parse(stored);
-                    if(!this.data.credits) this.data.credits = []; // Init if missing
+                    // Ensure new fields exist
+                    if(!this.data.credits) this.data.credits = [];
+                    if(!this.data.trash) this.data.trash = [];
                     if(this.data.items.length > 0 && typeof this.data.items[0] === 'string') {
                         this.data.items = this.data.items.map(name => ({name, price: ''}));
                     }
+                    this.cleanupTrash(); // Auto clean old trash
                 }
+                
                 if(this.data.shop) {
-                    document.getElementById('view-login').classList.remove('hidden');
-                    document.getElementById('login-shop-display').innerText = this.data.shop.shopName;
-                    document.getElementById('login-shop-display').classList.remove('hidden');
+                    // Check if Password is set
+                    if(this.data.shop.password && this.data.shop.password.trim() !== "") {
+                        document.getElementById('view-login').classList.remove('hidden');
+                        document.getElementById('login-shop-display').innerText = this.data.shop.shopName;
+                        document.getElementById('login-shop-display').classList.remove('hidden');
+                    } else {
+                        // No password, direct entry
+                        document.getElementById('app-interface').classList.remove('hidden');
+                        this.loadSettings();
+                        this.nav('dashboard');
+                    }
                 } else {
                     document.getElementById('view-setup').classList.remove('hidden');
                 }
@@ -421,6 +407,98 @@
                 this.updateDashboard();
             },
 
+            // --- TRASH LOGIC ---
+            moveToTrash: function(item, type) {
+                this.data.trash.push({
+                    ...item,
+                    deletedAt: Date.now(),
+                    type: type // 'invoice' or 'credit'
+                });
+            },
+
+            cleanupTrash: function() {
+                const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                const now = Date.now();
+                this.data.trash = this.data.trash.filter(item => (now - item.deletedAt) < sevenDays);
+                this.save();
+            },
+
+            showTrash: function() {
+                const list = document.getElementById('trash-list');
+                list.innerHTML = '';
+                if(this.data.trash.length === 0) {
+                    list.innerHTML = '<div class="text-center text-slate-400 mt-10">Bin is Empty</div>';
+                } else {
+                    this.data.trash.forEach((item, idx) => {
+                        const isInv = item.type === 'invoice';
+                        list.innerHTML += `
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                                <div>
+                                    <span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">${item.type}</span>
+                                    <div class="font-bold text-sm text-slate-800 mt-1">${isInv ? item.no : item.name}</div>
+                                    <div class="text-xs text-slate-500">₹${isInv ? item.grandTotal : item.amount}</div>
+                                </div>
+                                <button onclick="app.restoreFromTrash(${idx})" class="text-blue-600 font-bold text-xs bg-blue-50 px-3 py-2 rounded-lg">Restore</button>
+                            </div>`;
+                    });
+                }
+                document.getElementById('view-trash').classList.remove('hidden');
+            },
+
+            restoreFromTrash: function(idx) {
+                const item = this.data.trash[idx];
+                this.data.trash.splice(idx, 1); // Remove from trash
+                
+                if(item.type === 'invoice') this.data.invoices.unshift(item);
+                else if(item.type === 'credit') this.data.credits.unshift(item);
+                
+                this.save();
+                this.showTrash();
+                alert('Restored Successfully!');
+            },
+
+            // --- CREDIT LOGIC UPDATE ---
+            markCreditPaid: function(id) {
+                const creditIndex = this.data.credits.findIndex(c => c.id === id);
+                if(creditIndex === -1) return;
+                const credit = this.data.credits[creditIndex];
+
+                if(confirm(`Mark ₹${credit.amount} as Paid? This will move to Sale List.`)) {
+                    // Move to Invoice
+                    const newInv = {
+                        id: Date.now(),
+                        no: `INV-PAY-${String(this.data.invoices.length+1).padStart(3,'0')}`,
+                        date: new Date().toLocaleDateString('en-IN'),
+                        rawDate: new Date(),
+                        time: new Date().toLocaleTimeString(),
+                        item: `Credit Payment - ${credit.note || 'Dues'}`,
+                        rate: credit.amount,
+                        gstPercent: 0, taxAmount: 0,
+                        grandTotal: credit.amount.toFixed(2),
+                        mode: 'Cash', // Assuming cash payment for clearance
+                        phone: credit.phone,
+                        name: credit.name
+                    };
+                    
+                    this.data.invoices.unshift(newInv);
+                    this.data.credits.splice(creditIndex, 1); // Remove from credit
+                    this.save();
+                    this.renderCredits();
+                    alert('Payment Received! Moved to Sales.');
+                }
+            },
+
+            sendCreditWhatsapp: function(phone, name, amt) {
+                if(!phone) return alert('No Phone Number!');
+                const upi = this.data.shop.upi;
+                const shop = this.data.shop.shopName;
+                let msg = `Hello ${name}, your payment of ₹${amt} is pending at *${shop}*.`;
+                if(upi) msg += `\nPlease pay via UPI: ${upi}`;
+                msg += `\n\nThank you!`;
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+
+            // --- CORE FUNCTIONS ---
             saveSetup: function(e) {
                 e.preventDefault();
                 const fd = new FormData(e.target);
@@ -445,16 +523,10 @@
                 document.getElementById('view-' + viewId).classList.remove('hidden');
                 document.getElementById('header-shop-name').innerText = this.data.shop.shopName;
                 const fab = document.getElementById('fab-btn');
-                const backBtn = document.getElementById('back-btn');
+                
+                if(viewId === 'dashboard') fab.classList.remove('hidden');
+                else fab.classList.add('hidden');
 
-                if(viewId === 'dashboard') {
-                    fab.classList.remove('hidden');
-                    backBtn.classList.add('hidden');
-                    this.updateDashboard();
-                } else {
-                    fab.classList.add('hidden');
-                    backBtn.classList.remove('hidden');
-                }
                 if(viewId === 'billing') {
                     document.getElementById('bill-inv-no').innerText = `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`;
                     this.populateItemSuggestions();
@@ -463,6 +535,8 @@
                 if(viewId === 'expenses') this.renderExpenses();
                 if(viewId === 'items') this.renderStockItems();
                 if(viewId === 'credit') this.renderCredits();
+                
+                this.updateDashboard();
             },
 
             updateDashboard: function() {
@@ -493,9 +567,9 @@
 
             updateModeUI: function() {
                 document.querySelectorAll('.mode-btn').forEach(b => {
-                    b.className = "mode-btn py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition";
+                    b.className = "mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition";
                 });
-                document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2 rounded-md text-sm font-bold bg-white text-blue-700 shadow-sm transition ring-1 ring-blue-100";
+                document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition ring-1 ring-blue-100";
             },
 
             checkItemPrice: function() {
@@ -546,16 +620,17 @@
                     name: document.getElementById('bill-cust-name').value || 'Guest'
                 };
 
+                // Direct to Invoice
                 this.data.invoices.unshift(inv);
                 
-                // --- AUTO ADD TO CREDIT BOOK IF MODE IS CREDIT ---
+                // If Credit Mode -> Add to Credit Book as well
                 if(this.currentMode === 'Credit') {
                     this.data.credits.unshift({
-                        id: Date.now() + 1, // slightly diff ID
+                        id: Date.now() + 1,
                         name: inv.name,
                         phone: inv.phone,
                         amount: parseFloat(inv.grandTotal),
-                        note: `Invoice ${inv.no} - ${inv.item}`,
+                        note: `Inv ${inv.no}`,
                         date: inv.date
                     });
                 }
@@ -567,10 +642,10 @@
                     const btn = event.target;
                     const originalText = btn.innerText;
                     btn.innerText = "Saved!";
-                    btn.classList.replace('bg-slate-700', 'bg-green-600');
+                    btn.classList.replace('bg-slate-800', 'bg-green-600');
                     setTimeout(() => {
                         btn.innerText = originalText;
-                        btn.classList.replace('bg-green-600', 'bg-slate-700');
+                        btn.classList.replace('bg-green-600', 'bg-slate-800');
                         this.newBill();
                     }, 800);
                 } else {
@@ -578,12 +653,11 @@
                 }
             },
 
-            // --- CREDIT BOOK LOGIC ---
             addCredit: function() {
                 const name = document.getElementById('cred-name').value;
                 const phone = document.getElementById('cred-phone').value;
                 const amt = parseFloat(document.getElementById('cred-amt').value);
-                const note = document.getElementById('cred-note').value || 'Manual Entry';
+                const note = document.getElementById('cred-note').value || 'Manual';
                 if(!name || !amt) return alert('Name & Amount required!');
 
                 this.data.credits.unshift({
@@ -609,29 +683,34 @@
                 }
                 this.data.credits.forEach(c => {
                     list.innerHTML += `
-                        <div class="bg-white p-3 rounded-lg border border-orange-100 shadow-sm flex justify-between items-center">
-                            <div>
+                        <div class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm flex justify-between items-center">
+                            <div class="flex-1">
                                 <div class="font-bold text-slate-800 text-sm">${c.name}</div>
-                                <div class="text-[10px] text-slate-500">${c.date} • ${c.note}</div>
-                                ${c.phone ? `<div class="text-[10px] text-blue-500"><i class="fa-solid fa-phone"></i> ${c.phone}</div>` : ''}
+                                <div class="text-[10px] text-slate-500 font-bold">${c.date} • ${c.note}</div>
+                                <div class="flex gap-3 mt-2">
+                                    ${c.phone ? `<button onclick="window.open('tel:${c.phone}')" class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-600"><i class="fa-solid fa-phone mr-1"></i> Call</button>` : ''}
+                                    ${c.phone ? `<button onclick="app.sendCreditWhatsapp(${c.phone}, '${c.name}', ${c.amount})" class="text-[10px] bg-green-50 px-2 py-1 rounded text-green-600"><i class="fa-brands fa-whatsapp mr-1"></i> Alert</button>` : ''}
+                                </div>
                             </div>
                             <div class="text-right">
-                                <div class="font-bold text-orange-600 text-lg">₹${c.amount}</div>
-                                <button onclick="app.deleteCredit(${c.id})" class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded mt-1 font-bold border border-green-200 hover:bg-green-200">MARK PAID</button>
+                                <div class="font-black text-orange-600 text-lg">₹${c.amount}</div>
+                                <button onclick="app.markCreditPaid(${c.id})" class="text-[10px] bg-orange-500 text-white px-3 py-1.5 rounded-lg mt-1 font-bold shadow-sm active:scale-95">MARK PAID</button>
+                                <button onclick="app.deleteCredit(${c.id})" class="text-[10px] text-red-400 block mt-1 ml-auto">Delete</button>
                             </div>
                         </div>`;
                 });
             },
 
             deleteCredit: function(id) {
-                if(confirm('Payment Received? Clear this entry?')) {
+                const item = this.data.credits.find(c => c.id === id);
+                if(confirm('Move this entry to Trash?')) {
+                    this.moveToTrash(item, 'credit');
                     this.data.credits = this.data.credits.filter(c => c.id !== id);
                     this.save();
                     this.renderCredits();
                 }
             },
 
-            // --- INVOICE & EXPORT LOGIC ---
             prepareInvoices: function(inv) {
                 document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
                 document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
@@ -699,7 +778,7 @@
                 const list = document.getElementById('expense-list');
                 list.innerHTML = '';
                 this.data.expenses.forEach(e => {
-                    list.innerHTML += `<div class="bg-white p-3 rounded-lg border flex justify-between"><span class="text-sm font-semibold">${e.name} <span class="text-xs text-slate-400">(${e.date})</span></span><span class="font-bold text-red-500">₹${e.amount}</span></div>`;
+                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between"><span class="text-sm font-bold text-slate-700">${e.name} <span class="text-xs text-slate-400 font-normal">(${e.date})</span></span><span class="font-bold text-red-500">₹${e.amount}</span></div>`;
                 });
             },
 
@@ -718,7 +797,7 @@
                 const list = document.getElementById('stock-list');
                 list.innerHTML = '';
                 this.data.items.forEach(i => {
-                    list.innerHTML += `<div class="bg-white p-3 rounded-lg border text-sm font-semibold text-slate-700 flex justify-between"><span>${i.name}</span><span class="text-blue-600 font-bold">₹${i.price || '-'}</span></div>`;
+                    list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 text-sm font-bold text-slate-700 flex justify-between"><span>${i.name}</span><span class="text-blue-600 font-black">₹${i.price || '-'}</span></div>`;
                 });
             },
             
@@ -730,9 +809,9 @@
 
             filterHistory: function(type) {
                 ['btn-today', 'btn-month', 'btn-all'].forEach(id => {
-                    document.getElementById(id).className = "flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500";
+                    document.getElementById(id).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400";
                 });
-                document.getElementById('btn-'+type).className = "flex-1 py-1.5 text-xs font-bold rounded transition-all filter-active";
+                document.getElementById('btn-'+type).className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active";
                 const todayStr = new Date().toLocaleDateString('en-IN');
                 const now = new Date();
                 let filtered = [];
@@ -750,26 +829,28 @@
 
                 filtered.forEach(i => {
                     list.innerHTML += `
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1"><h4 class="font-bold text-slate-800">${i.mode} Sale</h4><span class="badge-paid">PAID</span></div>
-                                    <h2 class="text-xl font-bold text-slate-900">₹ ${i.grandTotal}</h2>
+                                    <h2 class="text-xl font-black text-slate-900">₹ ${i.grandTotal}</h2>
                                     <p class="text-[10px] text-slate-400 mt-1">GST: ${i.gstPercent}%</p>
                                 </div>
-                                <div class="text-right"><div class="text-[10px] text-slate-400">Sale #${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div>
+                                <div class="text-right"><div class="text-[10px] font-bold text-slate-400">#${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div>
                             </div>
-                            <div class="border-t border-slate-100 pt-3 flex justify-end gap-4 text-slate-500">
+                            <div class="border-t border-slate-50 pt-3 flex justify-end gap-4 text-slate-400">
                                 <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.downloadBillAction()" class="hover:text-blue-600"><i class="fa-solid fa-download text-lg"></i></button>
                                 <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.shareBillAction()" class="hover:text-green-600"><i class="fa-brands fa-whatsapp text-lg"></i></button>
-                                <button onclick="app.deleteInvoice(${i.id})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash text-lg"></i></button>
+                                <button onclick="app.deleteInvoice(${i.id})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash text-lg"></i></button>
                             </div>
                         </div>`;
                 });
             },
 
             deleteInvoice: function(id) {
-                if(confirm('Delete kar dun Boss?')) {
+                const item = this.data.invoices.find(i => i.id === id);
+                if(confirm('Move to Trash?')) {
+                    this.moveToTrash(item, 'invoice');
                     this.data.invoices = this.data.invoices.filter(i => i.id !== id);
                     this.save();
                     this.filterHistory('today');
@@ -788,7 +869,7 @@
                 }
                 const ctx = document.getElementById('salesChart').getContext('2d');
                 if(salesChartInstance) salesChartInstance.destroy();
-                salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data, backgroundColor: '#0088cc', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
+                salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data, backgroundColor: '#3b82f6', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
             },
 
             loadSettings: function() {
@@ -797,6 +878,7 @@
                 document.getElementById('set-phone').value = this.data.shop.phone;
                 document.getElementById('set-address').value = this.data.shop.address;
                 document.getElementById('set-gstin').value = this.data.shop.gstin || '';
+                document.getElementById('set-pass').value = this.data.shop.password || '';
             },
             
             updateProfile: function() {
@@ -805,6 +887,7 @@
                 this.data.shop.phone = document.getElementById('set-phone').value;
                 this.data.shop.address = document.getElementById('set-address').value;
                 this.data.shop.gstin = document.getElementById('set-gstin').value;
+                this.data.shop.password = document.getElementById('set-pass').value;
                 this.save();
                 alert('Profile Updated!');
             },
@@ -862,3 +945,5 @@
     </script>
 </body>
 </html>
+
+
