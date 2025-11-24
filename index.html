@@ -7,35 +7,44 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Chart.js for Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS for Excel Export & Restore -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); /* Thermal Font */
         
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* A4 Print Styles (Tally Like) */
+        /* --- PRINT LOGIC: THERMAL ONLY --- */
         @media print {
             body * { visibility: hidden; }
-            #invoice-a4, #invoice-a4 * { visibility: visible; }
-            #invoice-a4 {
+            #invoice-thermal, #invoice-thermal * { visibility: visible; }
+            #invoice-thermal {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100%;
-                min-height: 100vh;
+                width: 100%; /* 80mm or similar */
                 margin: 0;
                 padding: 0;
                 background: white;
                 color: black;
-                font-family: Arial, sans-serif;
+                font-family: 'VT323', monospace;
             }
-            @page { size: A4; margin: 0; }
-            #app-interface, #view-login, #view-setup, #success-modal { display: none !important; }
+            @page { margin: 0; size: auto; }
+            #app-interface, #view-login, #view-setup, #success-modal, #invoice-modern-render { display: none !important; }
+        }
+
+        /* --- MODERN A4 INVOICE (Hidden, used for JPG Capture) --- */
+        #invoice-modern-render {
+            width: 794px; /* A4 Width in px approx */
+            min-height: 1123px;
+            background: white;
+            position: fixed;
+            top: 0;
+            left: -9999px; /* Hidden from view */
+            z-index: -1;
         }
 
         .fab-shadow { box-shadow: 0 4px 15px rgba(23, 114, 230, 0.4); }
@@ -44,12 +53,6 @@
         
         .badge-paid { background-color: #dcfce7; color: #166534; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 700; letter-spacing: 0.5px; }
         .filter-active { background-color: #0088cc; color: white; border-color: #0088cc; }
-        
-        /* Invoice Table Borders */
-        .inv-border { border: 1px solid #333; }
-        .inv-header { background-color: #f3f3f3; font-weight: bold; text-align: center; }
-        .inv-row td { border-right: 1px solid #333; padding: 4px; }
-        .inv-row td:last-child { border-right: none; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 select-none bg-slate-100">
@@ -104,7 +107,6 @@
             
             <!-- DASHBOARD -->
             <div id="view-dashboard" class="space-y-4 pb-24 fade-in">
-                <!-- Summary Cards -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-[#e8f5e9] p-4 rounded-lg shadow-sm border border-green-100 flex flex-col justify-between h-24">
                         <span class="text-sm font-semibold text-slate-700">Total Sales</span>
@@ -116,7 +118,6 @@
                     </div>
                 </div>
 
-                <!-- Main Grid Buttons -->
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="app.nav('history')" class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-3 active:scale-95 transition h-32">
                         <i class="fa-solid fa-file-invoice text-3xl text-[#0088cc]"></i>
@@ -137,27 +138,23 @@
                 </div>
             </div>
 
-            <!-- NEW SALE SCREEN (With GST) -->
+            <!-- NEW SALE SCREEN -->
             <div id="view-billing" class="hidden h-full flex flex-col fade-in">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex-1 overflow-y-auto">
                     <div class="flex justify-between items-center mb-4 border-b pb-2">
                         <span class="text-xs font-bold text-slate-500">Invoice No</span>
                         <span class="font-mono font-bold text-slate-800" id="bill-inv-no">#INV-0000</span>
                     </div>
-
-                    <!-- Customer Details -->
                     <div class="mb-4 space-y-3">
                         <input id="bill-cust-name" placeholder="Customer Name (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
                         <input id="bill-cust-phone" type="number" placeholder="Customer Phone (Optional)" class="w-full p-2 border-b border-slate-200 outline-none text-sm bg-transparent focus:border-blue-500 transition font-semibold">
                     </div>
-
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase">Item Name</label>
                             <input id="bill-item-name" list="item-suggestions" oninput="app.checkItemPrice()" placeholder="Enter Item Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-700">
                             <datalist id="item-suggestions"></datalist>
                         </div>
-                        
                         <div class="flex gap-2">
                             <div class="flex-1">
                                 <label class="text-xs font-bold text-slate-400 uppercase">Price</label>
@@ -174,12 +171,10 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex justify-between items-center">
                              <span class="text-sm font-bold text-slate-500">Total with GST:</span>
                              <span class="text-xl font-bold text-green-600">₹ <span id="bill-final-total">0.00</span></span>
                         </div>
-
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Payment Type</label>
                             <div class="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-lg">
@@ -188,45 +183,38 @@
                                 <button onclick="app.setMode('Credit')" id="mode-Credit" class="mode-btn py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition">Credit</button>
                             </div>
                         </div>
-
                         <div id="live-qr-container" class="hidden flex flex-col items-center justify-center p-4 bg-white border-2 border-dashed border-blue-200 rounded-xl">
                             <div id="live-qrcode"></div>
                             <p class="text-[10px] text-slate-400 mt-2">Scan to Pay</p>
                         </div>
                     </div>
                 </div>
-
                 <div class="mt-4 grid grid-cols-2 gap-3 pb-16">
-                    <button onclick="app.saveBill(true)" class="bg-slate-700 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">
-                        Save & New
-                    </button>
-                    <button onclick="app.saveBill(false)" class="bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">
-                        Save
-                    </button>
+                    <button onclick="app.saveBill(true)" class="bg-slate-700 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Save & New</button>
+                    <button onclick="app.saveBill(false)" class="bg-green-600 text-white py-3.5 rounded-xl font-bold shadow-lg active:scale-95 transition">Save</button>
                 </div>
             </div>
 
-            <!-- EXPENSES SCREEN -->
+            <!-- EXPENSES, ITEMS, HISTORY (Simplified for space, logic remains) -->
             <div id="view-expenses" class="hidden fade-in pb-20">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Add Expense</h3>
                     <div class="flex gap-2 mb-2">
-                        <input id="exp-name" placeholder="Name (e.g. Tea, Rent)" class="flex-1 p-2 border rounded-lg outline-none text-sm">
-                        <input id="exp-amt" type="number" placeholder="₹ Amount" class="w-24 p-2 border rounded-lg outline-none text-sm font-bold">
+                        <input id="exp-name" placeholder="Name" class="flex-1 p-2 border rounded-lg outline-none text-sm">
+                        <input id="exp-amt" type="number" placeholder="₹" class="w-24 p-2 border rounded-lg outline-none text-sm font-bold">
                     </div>
                     <button onclick="app.addExpense()" class="w-full bg-red-500 text-white py-2 rounded-lg font-bold text-sm shadow-sm">Add Expense</button>
                 </div>
                 <div id="expense-list" class="space-y-2"></div>
             </div>
 
-            <!-- ITEMS (STOCK) SCREEN -->
             <div id="view-items" class="hidden fade-in pb-20">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4">
                     <h3 class="text-sm font-bold text-slate-700 mb-3">Add Stock Item</h3>
                     <div class="flex gap-2">
                         <div class="flex-1 space-y-2">
-                            <input id="stock-name" placeholder="Item Name" class="w-full p-2 border rounded-lg outline-none text-sm">
-                            <input id="stock-price" type="number" placeholder="₹ Price" class="w-full p-2 border rounded-lg outline-none text-sm">
+                            <input id="stock-name" placeholder="Item" class="w-full p-2 border rounded-lg outline-none text-sm">
+                            <input id="stock-price" type="number" placeholder="₹" class="w-full p-2 border rounded-lg outline-none text-sm">
                         </div>
                         <button onclick="app.addStockItem()" class="bg-blue-600 text-white px-4 rounded-lg font-bold text-sm shadow-sm">Add</button>
                     </div>
@@ -234,9 +222,7 @@
                 <div id="stock-list" class="space-y-2"></div>
             </div>
 
-            <!-- SALE LIST / HISTORY -->
             <div id="view-history" class="hidden pb-20 fade-in bg-[#f0f4f8]">
-                <!-- Summary Cards -->
                 <div class="grid grid-cols-2 gap-3 mb-4">
                     <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
                         <span class="text-xs text-slate-500 font-semibold">Total Sale</span>
@@ -247,27 +233,18 @@
                         <h2 class="text-lg font-bold text-red-500">₹ 0.00</h2>
                     </div>
                 </div>
-
-                <!-- Weekly Sales Chart -->
                 <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100 mb-4">
                     <h3 class="text-xs font-bold text-slate-400 uppercase mb-2">Last 7 Days Trend</h3>
-                    <div class="h-32 w-full">
-                        <canvas id="salesChart"></canvas>
-                    </div>
+                    <div class="h-32 w-full"><canvas id="salesChart"></canvas></div>
                 </div>
-
-                <!-- Filters -->
                 <div class="flex bg-white p-1 rounded-lg mb-4 shadow-sm border border-slate-100">
                     <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-1.5 text-xs font-bold rounded transition-all filter-active">Today</button>
                     <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500">This Month</button>
                     <button onclick="app.filterHistory('all')" id="btn-all" class="flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500">All</button>
                 </div>
-
-                <!-- Sale Cards List -->
                 <div id="history-list" class="space-y-3"></div>
             </div>
 
-            <!-- SETTINGS -->
             <div id="view-settings" class="hidden pb-20 fade-in">
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <h2 class="font-bold border-b pb-2">Settings</h2>
@@ -275,146 +252,143 @@
                     <input id="set-upi" placeholder="UPI ID" class="w-full p-2 border rounded outline-none text-sm">
                     <input id="set-phone" placeholder="Phone" class="w-full p-2 border rounded outline-none text-sm">
                     <input id="set-address" placeholder="Address" class="w-full p-2 border rounded outline-none text-sm">
-                    <input id="set-gstin" placeholder="Shop GSTIN (Optional)" class="w-full p-2 border rounded outline-none text-sm">
+                    <input id="set-gstin" placeholder="GSTIN" class="w-full p-2 border rounded outline-none text-sm">
                     <button onclick="app.updateProfile()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold shadow">Update</button>
-                    
-                    <!-- Backup & Restore -->
                     <div class="grid grid-cols-2 gap-3 mt-2">
-                        <button onclick="app.exportExcel()" class="bg-green-100 text-green-700 py-2 rounded-lg font-bold border border-green-200 text-xs flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-file-excel text-lg"></i> Excel Backup
-                        </button>
-                        <button onclick="app.backupFlow()" class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold border border-blue-200 text-xs flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-download text-lg"></i> JSON Backup
-                        </button>
+                        <button onclick="app.exportExcel()" class="bg-green-100 text-green-700 py-2 rounded-lg font-bold border border-green-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-file-excel text-lg"></i> Excel Backup</button>
+                        <button onclick="app.backupFlow()" class="bg-blue-100 text-blue-700 py-2 rounded-lg font-bold border border-blue-200 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-download text-lg"></i> JSON Backup</button>
                     </div>
-                    
                     <label class="block bg-slate-100 text-slate-700 py-3 rounded-lg font-bold border-2 border-dashed border-slate-300 text-sm text-center cursor-pointer hover:bg-slate-200 transition mt-4">
                         <i class="fa-solid fa-upload mr-2"></i> Restore Data (Excel / JSON)
                         <input type="file" class="hidden" onchange="app.restore(this)" accept=".json,.xlsx,.xls">
                     </label>
-
                     <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
                 </div>
             </div>
-
         </div>
 
-        <!-- FAB (Add Button) -->
+        <!-- FAB -->
         <div id="fab-btn" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
             <button onclick="app.newBill()" class="w-14 h-14 bg-[#0088cc] rounded-full text-white text-2xl shadow-xl fab-shadow flex items-center justify-center border-4 border-white active:scale-90 transition">
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
-
     </div>
 
-    <!-- SUCCESS MODAL (PREVIEW) -->
+    <!-- SUCCESS MODAL -->
     <div id="success-modal" class="fixed inset-0 z-[60] bg-black/80 flex flex-col items-center justify-center p-4 hidden">
         <div class="bg-white p-6 rounded-xl w-[300px] text-center mb-4">
              <i class="fa-solid fa-circle-check text-5xl text-green-500 mb-2"></i>
              <h2 class="text-xl font-bold">Saved!</h2>
-             <p class="text-sm text-slate-500 mb-4">Invoice generated successfully.</p>
-             <div class="flex gap-4 justify-center">
-                 <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow"><i class="fa-solid fa-print mr-1"></i> Print A4</button>
-                 <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="text-slate-500 font-bold px-2">Close</button>
+             <p class="text-sm text-slate-500 mb-4">What do you want to do?</p>
+             <div class="flex gap-4 justify-center flex-wrap">
+                 <button onclick="app.printBillAction()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center text-sm">
+                    <i class="fa-solid fa-print mr-1"></i> Print & Save
+                 </button>
+                 <button onclick="app.shareBillAction()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center text-sm">
+                    <i class="fa-brands fa-whatsapp mr-1"></i> Share
+                 </button>
              </div>
+             <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="text-slate-400 text-xs font-bold mt-4 underline">Close</button>
         </div>
     </div>
 
-    <!-- A4 INVOICE TEMPLATE (HIDDEN UNTIL PRINT) -->
-    <div id="invoice-a4" class="hidden bg-white p-8">
-        <div class="border border-black min-h-[90vh] relative">
-            <!-- Header -->
-            <div class="flex border-b border-black">
-                <div class="w-1/2 p-4 border-r border-black">
-                    <h2 id="inv-shop-name" class="text-2xl font-bold uppercase mb-1">Shop Name</h2>
-                    <p id="inv-shop-address" class="text-sm">Address</p>
-                    <p class="text-sm mt-1"><strong>GSTIN:</strong> <span id="inv-shop-gst"></span></p>
-                    <p class="text-sm"><strong>Ph:</strong> <span id="inv-shop-phone"></span></p>
+    <!-- 1. THERMAL INVOICE (Visible only on Print) -->
+    <div id="invoice-thermal" class="hidden p-2 text-center font-mono">
+        <h2 id="therm-shop" class="text-xl font-bold uppercase border-b border-black pb-1">Shop Name</h2>
+        <p id="therm-info" class="text-xs mt-1">Address & Phone</p>
+        <div class="text-left text-xs mt-2 border-b border-black pb-1">
+            <p>Inv: <span id="therm-inv"></span></p>
+            <p>Date: <span id="therm-date"></span></p>
+        </div>
+        <table class="w-full text-xs mt-1 text-left">
+            <thead><tr class="border-b border-black"><td>Item</td><td class="text-right">Amt</td></tr></thead>
+            <tbody id="therm-items"></tbody>
+        </table>
+        <div class="text-right font-bold text-sm mt-2 border-t border-black pt-1">
+            TOTAL: ₹ <span id="therm-total">0.00</span>
+        </div>
+        <div class="text-center text-[10px] mt-4">Thank You!</div>
+    </div>
+
+    <!-- 2. MODERN A4 INVOICE (Hidden, for JPG Capture) -->
+    <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans">
+        <!-- Header -->
+        <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-bold" id="mod-shop-name">SHOP NAME</h1>
+                <p class="text-sm mt-1 opacity-80">INVOICE</p>
+            </div>
+            <div class="text-right">
+                <h2 class="text-2xl font-bold" id="mod-inv-total">₹ 0.00</h2>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <!-- Info Grid -->
+            <div class="flex justify-between mb-8">
+                <div class="w-1/2">
+                    <p class="text-xs font-bold text-slate-400 uppercase">From</p>
+                    <p class="font-bold" id="mod-from-name">Shop Name</p>
+                    <p class="text-sm text-slate-600" id="mod-from-addr">Address</p>
+                    <p class="text-sm text-slate-600" id="mod-from-phone">Phone</p>
+                    <p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p>
                 </div>
-                <div class="w-1/2 p-4">
-                    <h3 class="text-xl font-bold text-right text-gray-700">TAX INVOICE</h3>
-                    <div class="flex justify-between mt-4 text-sm">
-                        <div>
-                            <p><strong>Invoice No:</strong> <span id="inv-no"></span></p>
-                            <p><strong>Date:</strong> <span id="inv-date"></span></p>
-                        </div>
-                        <div class="text-right">
-                             <p><strong>Place of Supply:</strong> <span id="inv-state">Assam (18)</span></p>
-                        </div>
+                <div class="w-1/2 text-right">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Bill To</p>
+                    <p class="font-bold" id="mod-to-name">Guest</p>
+                    <p class="text-sm text-slate-600" id="mod-to-phone">Phone</p>
+                    <div class="mt-4">
+                        <p class="text-sm"><span class="font-bold">Invoice #:</span> <span id="mod-inv-no"></span></p>
+                        <p class="text-sm"><span class="font-bold">Date:</span> <span id="mod-inv-date"></span></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Bill To -->
-            <div class="p-2 border-b border-black text-sm flex justify-between">
-                <div>
-                    <strong>Bill To:</strong> <span id="inv-cust-name">Guest</span>
-                </div>
-                <div>
-                    <strong>Ph:</strong> <span id="inv-cust-phone"></span>
-                </div>
-            </div>
-
-            <!-- Items Table -->
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="inv-header border-b border-black">
-                        <td class="w-[5%] border-r border-black p-2">SN</td>
-                        <td class="w-[40%] border-r border-black p-2 text-left">Description of Goods</td>
-                        <td class="w-[10%] border-r border-black p-2">Qty</td>
-                        <td class="w-[15%] border-r border-black p-2">Rate</td>
-                        <td class="w-[10%] border-r border-black p-2">GST</td>
-                        <td class="w-[20%] p-2 text-right">Amount</td>
+            <!-- Table -->
+            <table class="w-full mb-8">
+                <thead class="bg-[#003366] text-white">
+                    <tr>
+                        <th class="p-3 text-left text-sm">DESCRIPTION</th>
+                        <th class="p-3 text-center text-sm">QTY</th>
+                        <th class="p-3 text-center text-sm">PRICE</th>
+                        <th class="p-3 text-center text-sm">GST</th>
+                        <th class="p-3 text-right text-sm">AMOUNT</th>
                     </tr>
                 </thead>
-                <tbody id="inv-items-body">
-                    <!-- Dynamic Row -->
+                <tbody id="mod-tbody" class="text-sm text-slate-700">
+                    <!-- Row -->
                 </tbody>
             </table>
 
-            <!-- Bottom Section -->
-            <div class="absolute bottom-0 w-full border-t border-black">
-                 <div class="flex">
-                     <div class="w-[70%] border-r border-black p-2 text-xs">
-                         <p class="font-bold">Bank Details:</p>
-                         <p>UPI ID: <span id="inv-upi"></span></p>
-                         <p class="mt-4 italic">Note: Goods once sold will not be taken back.</p>
-                     </div>
-                     <div class="w-[30%]">
-                         <div class="flex justify-between p-2 border-b border-black text-sm">
-                             <span>Taxable Amt:</span>
-                             <span id="inv-taxable">0.00</span>
-                         </div>
-                         <div class="flex justify-between p-2 border-b border-black text-sm">
-                             <span>CGST:</span>
-                             <span id="inv-cgst">0.00</span>
-                         </div>
-                         <div class="flex justify-between p-2 border-b border-black text-sm">
-                             <span>SGST:</span>
-                             <span id="inv-sgst">0.00</span>
-                         </div>
-                         <div class="flex justify-between p-2 text-lg font-bold bg-gray-100">
-                             <span>TOTAL:</span>
-                             <span>₹ <span id="inv-grand-total">0.00</span></span>
-                         </div>
-                     </div>
-                 </div>
-                 <div class="flex border-t border-black">
-                     <div class="w-1/2 p-4 text-xs">
-                         <p>Customer's Signature</p>
-                     </div>
-                     <div class="w-1/2 p-4 text-xs text-right">
-                         <p class="mb-4">For, <span id="inv-auth-shop" class="font-bold">Shop Name</span></p>
-                         <p>Authorized Signatory</p>
-                     </div>
-                 </div>
+            <!-- Totals -->
+            <div class="flex justify-end">
+                <div class="w-64">
+                    <div class="flex justify-between py-1 border-b">
+                        <span class="text-slate-500">Subtotal</span>
+                        <span id="mod-subtotal">0.00</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b">
+                        <span class="text-slate-500">Tax (GST)</span>
+                        <span id="mod-tax">0.00</span>
+                    </div>
+                    <div class="flex justify-between py-2 font-bold text-lg text-[#003366]">
+                        <span>TOTAL</span>
+                        <span>₹ <span id="mod-grand-total">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-16 pt-8 border-t text-center text-xs text-slate-400">
+                <p>Thank you for your business!</p>
+                <p class="mt-1">Payment Info: UPI - <span id="mod-upi"></span></p>
             </div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v7'; 
+        const DB_KEY = 'digitmart_billbook_v8'; 
         let salesChartInstance = null;
 
         const app = {
@@ -430,7 +404,6 @@
                         this.data.items = this.data.items.map(name => ({name, price: ''}));
                     }
                 }
-                
                 if(this.data.shop) {
                     document.getElementById('view-login').classList.remove('hidden');
                     document.getElementById('login-shop-display').innerText = this.data.shop.shopName;
@@ -468,7 +441,6 @@
                 document.querySelectorAll('#main-content > div').forEach(el => el.classList.add('hidden'));
                 document.getElementById('view-' + viewId).classList.remove('hidden');
                 document.getElementById('header-shop-name').innerText = this.data.shop.shopName;
-                
                 const fab = document.getElementById('fab-btn');
                 const backBtn = document.getElementById('back-btn');
 
@@ -480,15 +452,11 @@
                     fab.classList.add('hidden');
                     backBtn.classList.remove('hidden');
                 }
-
                 if(viewId === 'billing') {
                     document.getElementById('bill-inv-no').innerText = `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`;
                     this.populateItemSuggestions();
                 }
-                if(viewId === 'history') {
-                    this.filterHistory('today');
-                    this.renderSalesChart();
-                }
+                if(viewId === 'history') { this.filterHistory('today'); this.renderSalesChart(); }
                 if(viewId === 'expenses') this.renderExpenses();
                 if(viewId === 'items') this.renderStockItems();
             },
@@ -500,7 +468,6 @@
                 document.getElementById('dash-expense').innerText = totalExp.toLocaleString('en-IN');
             },
 
-            // --- BILLING LOGIC ---
             newBill: function() {
                 this.currentMode = 'Cash';
                 this.updateModeUI();
@@ -524,8 +491,7 @@
                 document.querySelectorAll('.mode-btn').forEach(b => {
                     b.className = "mode-btn py-2 rounded-md text-sm font-bold text-slate-500 hover:bg-white/50 transition";
                 });
-                const active = document.getElementById('mode-' + this.currentMode);
-                active.className = "mode-btn py-2 rounded-md text-sm font-bold bg-white text-blue-700 shadow-sm transition ring-1 ring-blue-100";
+                document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2 rounded-md text-sm font-bold bg-white text-blue-700 shadow-sm transition ring-1 ring-blue-100";
             },
 
             checkItemPrice: function() {
@@ -540,16 +506,11 @@
             calculateTotal: function() {
                 const price = parseFloat(document.getElementById('bill-amount').value) || 0;
                 const gstRate = parseFloat(document.getElementById('bill-gst').value) || 0;
-                
                 const taxAmt = (price * gstRate) / 100;
                 const total = price + taxAmt;
-                
                 document.getElementById('bill-final-total').innerText = total.toFixed(2);
-                
-                // QR Logic
                 const qrCont = document.getElementById('live-qr-container');
                 const qrDiv = document.getElementById('live-qrcode');
-                
                 if(this.currentMode === 'UPI' && total > 0 && this.data.shop.upi) {
                     qrCont.classList.remove('hidden');
                     qrDiv.innerHTML = '';
@@ -558,7 +519,6 @@
                 } else {
                     qrCont.classList.add('hidden');
                 }
-
                 return { price, gstRate, taxAmt, total };
             },
 
@@ -566,24 +526,20 @@
                 const calcs = this.calculateTotal();
                 if(!calcs.price || calcs.price <= 0) return alert('Boss, Price to daalo!');
                 
-                const itemName = document.getElementById('bill-item-name').value || 'Sale';
-                const custName = document.getElementById('bill-cust-name').value || 'Guest';
-                const custPhone = document.getElementById('bill-cust-phone').value;
-
                 const inv = {
                     id: Date.now(),
                     no: `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`,
                     date: new Date().toLocaleDateString('en-IN'),
                     rawDate: new Date(),
                     time: new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}),
-                    item: itemName,
+                    item: document.getElementById('bill-item-name').value || 'Sale',
                     rate: calcs.price,
                     gstPercent: calcs.gstRate,
                     taxAmount: calcs.taxAmt,
                     grandTotal: calcs.total.toFixed(2),
                     mode: this.currentMode,
-                    phone: custPhone,
-                    name: custName
+                    phone: document.getElementById('bill-cust-phone').value,
+                    name: document.getElementById('bill-cust-name').value || 'Guest'
                 };
 
                 this.data.invoices.unshift(inv);
@@ -601,50 +557,82 @@
                         this.newBill();
                     }, 800);
                 } else {
-                    this.renderA4Invoice(inv);
                     document.getElementById('success-modal').classList.remove('hidden');
                 }
             },
 
-            renderA4Invoice: function(inv) {
-                // Shop Details
-                document.getElementById('inv-shop-name').innerText = this.data.shop.shopName;
-                document.getElementById('inv-shop-address').innerText = this.data.shop.address;
-                document.getElementById('inv-shop-phone').innerText = this.data.shop.phone;
-                document.getElementById('inv-shop-gst').innerText = this.data.shop.gstin || 'N/A';
-                document.getElementById('inv-auth-shop').innerText = this.data.shop.shopName;
-                document.getElementById('inv-upi').innerText = this.data.shop.upi || 'N/A';
+            // --- NEW PRINT & SHARE LOGIC ---
+            prepareInvoices: function(inv) {
+                // 1. Populate Thermal (For Browser Print)
+                document.getElementById('therm-shop').innerText = this.data.shop.shopName;
+                document.getElementById('therm-info').innerText = `${this.data.shop.address} | Ph: ${this.data.shop.phone}`;
+                document.getElementById('therm-inv').innerText = inv.no;
+                document.getElementById('therm-date').innerText = inv.date;
+                document.getElementById('therm-items').innerHTML = `<tr><td>${inv.item}</td><td class="text-right">${inv.grandTotal}</td></tr>`;
+                document.getElementById('therm-total').innerText = inv.grandTotal;
 
-                // Invoice Details
-                document.getElementById('inv-no').innerText = inv.no;
-                document.getElementById('inv-date').innerText = inv.date;
-                document.getElementById('inv-cust-name').innerText = inv.name || 'Guest';
-                document.getElementById('inv-cust-phone').innerText = inv.phone || '';
-
-                // Table Item
-                const tbody = document.getElementById('inv-items-body');
-                tbody.innerHTML = `
-                    <tr class="inv-row border-b border-black">
-                        <td class="text-center">1</td>
-                        <td>${inv.item}</td>
-                        <td class="text-center">1</td>
-                        <td class="text-center">${inv.rate}</td>
-                        <td class="text-center">${inv.gstPercent}%</td>
-                        <td class="text-right">${inv.grandTotal}</td>
-                    </tr>
-                `;
-
-                // Totals
-                document.getElementById('inv-taxable').innerText = inv.rate;
-                
-                const tax = parseFloat(inv.taxAmount);
-                const halfTax = (tax / 2).toFixed(2);
-                document.getElementById('inv-cgst').innerText = halfTax;
-                document.getElementById('inv-sgst').innerText = halfTax;
-                document.getElementById('inv-grand-total').innerText = inv.grandTotal;
+                // 2. Populate Modern A4 (For JPG)
+                document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
+                document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
+                document.getElementById('mod-from-name').innerText = this.data.shop.shopName;
+                document.getElementById('mod-from-addr').innerText = this.data.shop.address;
+                document.getElementById('mod-from-phone').innerText = this.data.shop.phone;
+                document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A';
+                document.getElementById('mod-to-name').innerText = inv.name;
+                document.getElementById('mod-to-phone').innerText = inv.phone || '-';
+                document.getElementById('mod-inv-no').innerText = inv.no;
+                document.getElementById('mod-inv-date').innerText = inv.date;
+                document.getElementById('mod-tbody').innerHTML = `
+                    <tr class="border-b">
+                        <td class="p-3">${inv.item}</td>
+                        <td class="p-3 text-center">1</td>
+                        <td class="p-3 text-center">${inv.rate}</td>
+                        <td class="p-3 text-center">${inv.gstPercent}%</td>
+                        <td class="p-3 text-right font-bold">${inv.grandTotal}</td>
+                    </tr>`;
+                document.getElementById('mod-subtotal').innerText = inv.rate;
+                document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2);
+                document.getElementById('mod-grand-total').innerText = inv.grandTotal;
+                document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A';
             },
 
-            // --- EXPENSES ---
+            downloadModernJPG: function(cb) {
+                const el = document.getElementById('invoice-modern-render');
+                html2canvas(el, { scale: 2 }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Invoice_${this.currentInv.no}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                    link.click();
+                    if(cb) cb();
+                });
+            },
+
+            printBillAction: function() {
+                if(!this.currentInv) return;
+                this.prepareInvoices(this.currentInv);
+                
+                // Auto Download JPG first
+                this.downloadModernJPG(() => {
+                    // Then Open Thermal Print Dialog
+                    setTimeout(() => {
+                        window.print(); 
+                    }, 1000);
+                });
+            },
+
+            shareBillAction: function() {
+                if(!this.currentInv) return;
+                if(!this.currentInv.phone) return alert('No Customer Phone!');
+                this.prepareInvoices(this.currentInv);
+
+                // Auto Download JPG
+                this.downloadModernJPG(() => {
+                    // Open WhatsApp
+                    const text = `*INVOICE FROM ${this.data.shop.shopName}*\n\nBill No: ${this.currentInv.no}\nAmount: ₹${this.currentInv.grandTotal}\n\nPlease find the attached invoice image.\nThank You!`;
+                    window.open(`https://wa.me/91${this.currentInv.phone}?text=${encodeURIComponent(text)}`, '_blank');
+                });
+            },
+
             addExpense: function() {
                 const name = document.getElementById('exp-name').value;
                 const amt = parseFloat(document.getElementById('exp-amt').value);
@@ -664,7 +652,6 @@
                 });
             },
 
-            // --- ITEMS / STOCK ---
             addStockItem: function() {
                 const name = document.getElementById('stock-name').value;
                 const price = document.getElementById('stock-price').value;
@@ -687,72 +674,46 @@
             populateItemSuggestions: function() {
                 const dl = document.getElementById('item-suggestions');
                 dl.innerHTML = '';
-                this.data.items.forEach(i => {
-                    dl.innerHTML += `<option value="${i.name}">`; 
-                });
+                this.data.items.forEach(i => { dl.innerHTML += `<option value="${i.name}">`; });
             },
 
-            // --- HISTORY ---
             filterHistory: function(type) {
                 ['btn-today', 'btn-month', 'btn-all'].forEach(id => {
-                    const el = document.getElementById(id);
-                    el.className = "flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500";
+                    document.getElementById(id).className = "flex-1 py-1.5 text-xs font-bold rounded transition-all text-slate-500";
                 });
                 document.getElementById('btn-'+type).className = "flex-1 py-1.5 text-xs font-bold rounded transition-all filter-active";
-
                 const todayStr = new Date().toLocaleDateString('en-IN');
                 const now = new Date();
                 let filtered = [];
+                if(type === 'today') filtered = this.data.invoices.filter(i => i.date === todayStr);
+                else if(type === 'month') filtered = this.data.invoices.filter(i => {
+                    const d = new Date(i.rawDate || i.id);
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                });
+                else filtered = this.data.invoices;
 
-                if(type === 'today') {
-                    filtered = this.data.invoices.filter(i => i.date === todayStr);
-                } else if(type === 'month') {
-                    filtered = this.data.invoices.filter(i => {
-                        const d = new Date(i.rawDate || i.id);
-                        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                    });
-                } else {
-                    filtered = this.data.invoices;
-                }
-
-                const total = filtered.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0);
-                document.getElementById('hist-total').innerText = total.toLocaleString('en-IN', {minimumFractionDigits: 2});
-
+                document.getElementById('hist-total').innerText = filtered.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
                 const list = document.getElementById('history-list');
                 list.innerHTML = '';
-                if(filtered.length === 0) {
-                    list.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs">No records found</div>';
-                    return;
-                }
+                if(filtered.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 py-6 text-xs">No records found</div>'; return; }
 
                 filtered.forEach(i => {
                     list.innerHTML += `
                         <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h4 class="font-bold text-slate-800">${i.mode} Sale</h4>
-                                        <span class="badge-paid">PAID</span>
-                                    </div>
+                                    <div class="flex items-center gap-2 mb-1"><h4 class="font-bold text-slate-800">${i.mode} Sale</h4><span class="badge-paid">PAID</span></div>
                                     <h2 class="text-xl font-bold text-slate-900">₹ ${i.grandTotal}</h2>
                                     <p class="text-[10px] text-slate-400 mt-1">GST: ${i.gstPercent}%</p>
                                 </div>
-                                <div class="text-right">
-                                    <div class="text-[10px] text-slate-400">Sale #${i.no}</div>
-                                    <div class="text-[10px] text-slate-400">${i.date}</div>
-                                </div>
+                                <div class="text-right"><div class="text-[10px] text-slate-400">Sale #${i.no}</div><div class="text-[10px] text-slate-400">${i.date}</div></div>
                             </div>
                             <div class="border-t border-slate-100 pt-3 flex justify-end gap-4 text-slate-500">
-                                <button onclick="app.currentInv=this.data.invoices.find(x=>x.id==${i.id});app.renderA4Invoice(app.currentInv);window.print()" class="hover:text-blue-600"><i class="fa-solid fa-print text-lg"></i></button>
-                                <div class="relative group">
-                                    <button class="hover:text-red-500"><i class="fa-solid fa-ellipsis-vertical text-lg px-2"></i></button>
-                                    <div class="absolute right-0 bottom-full bg-white shadow-lg border rounded p-2 hidden group-hover:block z-10">
-                                        <button onclick="app.deleteInvoice(${i.id})" class="text-red-500 text-xs font-bold whitespace-nowrap">Delete</button>
-                                    </div>
-                                </div>
+                                <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.printBillAction()" class="hover:text-blue-600"><i class="fa-solid fa-print text-lg"></i></button>
+                                <button onclick="app.currentInv=app.data.invoices.find(x=>x.id==${i.id});app.shareBillAction()" class="hover:text-green-600"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+                                <button onclick="app.deleteInvoice(${i.id})" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash text-lg"></i></button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             },
 
@@ -766,46 +727,17 @@
             },
 
             renderSalesChart: function() {
-                const labels = [];
-                const data = [];
-                const today = new Date();
-                
+                const labels = [], data = [], today = new Date();
                 for(let i=6; i>=0; i--) {
                     const d = new Date(today);
                     d.setDate(today.getDate() - i);
                     const dateStr = d.toLocaleDateString('en-IN');
                     labels.push(dateStr.slice(0, 5));
-                    
-                    const dayTotal = this.data.invoices
-                        .filter(inv => inv.date === dateStr)
-                        .reduce((sum, inv) => sum + parseFloat(inv.grandTotal), 0);
-                    data.push(dayTotal);
+                    data.push(this.data.invoices.filter(inv => inv.date === dateStr).reduce((sum, inv) => sum + parseFloat(inv.grandTotal), 0));
                 }
-
                 const ctx = document.getElementById('salesChart').getContext('2d');
                 if(salesChartInstance) salesChartInstance.destroy();
-
-                salesChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Sales (₹)',
-                            data: data,
-                            backgroundColor: '#0088cc',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { display: false } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
+                salesChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Sales', data, backgroundColor: '#0088cc', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } } });
             },
 
             loadSettings: function() {
@@ -826,49 +758,17 @@
                 alert('Profile Updated!');
             },
 
-            // --- EXCEL & BACKUP LOGIC ---
             exportExcel: function() {
-                const salesData = this.data.invoices.map(inv => ({
-                    Invoice: inv.no,
-                    Date: inv.date,
-                    Customer: inv.name,
-                    Phone: inv.phone,
-                    Item: inv.item,
-                    Rate: inv.rate,
-                    GST: inv.gstPercent + '%',
-                    Total: inv.grandTotal,
-                    Mode: inv.mode
-                }));
-
-                const expData = this.data.expenses.map(exp => ({
-                    Date: exp.date,
-                    Name: exp.name,
-                    Amount: exp.amount
-                }));
-
-                const itemData = this.data.items.map(i => ({
-                    Name: i.name,
-                    Price: i.price
-                }));
-
                 const wb = XLSX.utils.book_new();
-                
-                const wsSales = XLSX.utils.json_to_sheet(salesData);
-                XLSX.utils.book_append_sheet(wb, wsSales, "Sales");
-
-                const wsExp = XLSX.utils.json_to_sheet(expData);
-                XLSX.utils.book_append_sheet(wb, wsExp, "Expenses");
-
-                const wsItems = XLSX.utils.json_to_sheet(itemData);
-                XLSX.utils.book_append_sheet(wb, wsItems, "Stock");
-
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.invoices), "Sales");
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.expenses), "Expenses");
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(this.data.items), "Stock");
                 XLSX.writeFile(wb, `DigitMart_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
             },
 
             backupFlow: function() {
-                const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data));
                 const a = document.createElement('a');
-                a.href = data;
+                a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data));
                 a.download = `DigitMart_Backup_${new Date().toISOString().slice(0,10)}.json`;
                 document.body.appendChild(a);
                 a.click();
@@ -877,80 +777,29 @@
             restore: function(input) {
                 const file = input.files[0];
                 if(!file) return;
-
+                const reader = new FileReader();
                 if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    // EXCEL RESTORE LOGIC
-                    const reader = new FileReader();
                     reader.onload = function(e) {
                         try {
-                            const data = new Uint8Array(e.target.result);
-                            const workbook = XLSX.read(data, {type: 'array', cellDates: true});
-                            
-                            // Restore Sales
-                            if(workbook.Sheets["Sales"]) {
-                                const sales = XLSX.utils.sheet_to_json(workbook.Sheets["Sales"], {raw: false});
-                                app.data.invoices = sales.map((s, idx) => ({
-                                    id: Date.now() + idx,
-                                    no: s.Invoice || `INV-${idx}`,
-                                    date: s.Date,
-                                    name: s.Customer,
-                                    phone: s.Phone,
-                                    item: s.Item,
-                                    rate: s.Rate,
-                                    gstPercent: parseFloat(s.GST) || 0,
-                                    taxAmount: 0, // Approx
-                                    grandTotal: s.Total,
-                                    mode: s.Mode
-                                })).reverse();
-                            }
-                            
-                            // Restore Expenses
-                            if(workbook.Sheets["Expenses"]) {
-                                const expenses = XLSX.utils.sheet_to_json(workbook.Sheets["Expenses"], {raw: false});
-                                app.data.expenses = expenses.map((e, idx) => ({
-                                    id: Date.now() + idx,
-                                    date: e.Date,
-                                    name: e.Name,
-                                    amount: e.Amount
-                                }));
-                            }
-
-                            // Restore Stock
-                            if(workbook.Sheets["Stock"]) {
-                                const items = XLSX.utils.sheet_to_json(workbook.Sheets["Stock"]);
-                                app.data.items = items.map(i => ({ name: i.Name, price: i.Price }));
-                            }
-
-                            app.save();
-                            alert('Excel se Data Restore Ho Gaya Boss!');
-                            location.reload();
-
-                        } catch(err) {
-                            console.error(err);
-                            alert('Excel File me gadbad hai Boss!');
-                        }
+                            const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                            if(wb.Sheets["Sales"]) app.data.invoices = XLSX.utils.sheet_to_json(wb.Sheets["Sales"]).reverse();
+                            if(wb.Sheets["Expenses"]) app.data.expenses = XLSX.utils.sheet_to_json(wb.Sheets["Expenses"]);
+                            if(wb.Sheets["Stock"]) app.data.items = XLSX.utils.sheet_to_json(wb.Sheets["Stock"]);
+                            app.save(); alert('Excel Restored!'); location.reload();
+                        } catch(err) { alert('Error reading Excel'); }
                     };
                     reader.readAsArrayBuffer(file);
                 } else {
-                    // JSON RESTORE LOGIC
-                    const reader = new FileReader();
                     reader.onload = function(e) {
                         try {
-                            const restored = JSON.parse(e.target.result);
-                            if(restored.shop && restored.invoices) {
-                                if(confirm('Purana data udd jayega. Restore karun?')) {
-                                    localStorage.setItem(DB_KEY, JSON.stringify(restored));
-                                    alert('Data Restore Ho Gaya Boss!');
-                                    location.reload();
-                                }
-                            } else alert('Ye backup file galat hai Boss!');
-                        } catch(err) { alert('File corrupt hai!'); }
+                            const d = JSON.parse(e.target.result);
+                            if(d.shop && d.invoices) { localStorage.setItem(DB_KEY, JSON.stringify(d)); alert('Restored!'); location.reload(); }
+                        } catch(err) { alert('Corrupt JSON'); }
                     };
                     reader.readAsText(file);
                 }
             }
         };
-
         window.onload = () => app.init();
     </script>
 </body>
