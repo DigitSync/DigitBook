@@ -14,28 +14,37 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap'); 
         
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* --- MODERN A4 INVOICE (Hidden, used for JPG Capture) --- */
-        #invoice-modern-render {
-            width: 794px; /* A4 Width */
-            min-height: 1123px; /* A4 Height */
-            background: white;
-            position: fixed;
-            top: 0;
-            left: -9999px; /* Hidden */
-            z-index: -1;
-        }
+        #invoice-modern-render { width: 794px; min-height: 1123px; background: white; position: fixed; top: 0; left: -9999px; z-index: -1; }
 
-        .fab-shadow { box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5); }
-        .card-grad-1 { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-        .card-grad-2 { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .card-grad-1 { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: transform 0.1s; cursor: pointer; }
+        .card-grad-1:active { transform: scale(0.98); }
+        .card-grad-2 { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); transition: transform 0.1s; cursor: pointer; }
+        .card-grad-2:active { transform: scale(0.98); }
+
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .badge-paid { background-color: #dcfce7; color: #15803d; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 800; }
         .filter-active { background-color: #2563eb; color: white; border-color: #2563eb; }
+
+        /* --- DESIGNER CALCULATOR STYLES --- */
+        .calc-bg-theme { background-color: #ffffff; }
+        .calc-screen-theme { background-color: #f8fafc; color: #1e293b; font-family: 'VT323', monospace; letter-spacing: 2px; border: 1px solid #e2e8f0; }
+        
+        /* Base Button */
+        .calc-btn-base { 
+            @apply h-14 rounded-2xl font-bold text-xl flex items-center justify-center shadow-sm transition-all active:scale-90 active:shadow-inner;
+        }
+
+        /* Color Palette from Screenshot */
+        .btn-num { background-color: #2D3142; color: white; } /* Dark Indigo */
+        .btn-op  { background-color: #666A7D; color: white; } /* Muted Purple/Grey */
+        .btn-ac  { background-color: #E87C3E; color: white; } /* Vibrant Orange */
+        
+        .gst-btn-theme { @apply text-[11px] font-bold py-2 px-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 active:bg-slate-200 active:scale-95 transition text-center; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-slate-800 select-none bg-slate-50">
@@ -75,8 +84,7 @@
         <!-- HEADER -->
         <div class="bg-white px-5 py-4 shadow-sm border-b sticky top-0 z-30 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- BACK BUTTON -->
-                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition active:scale-95">
+                <button id="back-btn" onclick="app.nav('dashboard')" class="hidden w-10 h-10 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition active:scale-95 border border-slate-200">
                     <i class="fa-solid fa-arrow-left text-slate-600 text-lg"></i>
                 </button>
                 <div>
@@ -90,52 +98,120 @@
         </div>
 
         <!-- CONTENT AREA -->
-        <div class="flex-1 overflow-y-auto bg-slate-50 relative p-4" id="main-content">
+        <div class="flex-1 overflow-y-auto bg-slate-50 relative p-4 pb-0" id="main-content">
             
             <!-- DASHBOARD -->
-            <div id="view-dashboard" class="space-y-5 pb-28 fade-in">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="card-grad-1 p-5 rounded-2xl shadow-lg shadow-blue-200 text-white relative overflow-hidden">
-                        <i class="fa-solid fa-chart-line absolute -bottom-2 -right-2 text-6xl text-white/20"></i>
-                        <span class="text-xs font-bold opacity-90 uppercase tracking-wider">Total Sales</span>
-                        <h2 class="text-2xl font-black mt-1">₹ <span id="dash-total">0</span></h2>
+            <div id="view-dashboard" class="space-y-4 fade-in h-full flex flex-col">
+                <div class="grid grid-cols-2 gap-4 shrink-0">
+                    <div onclick="app.nav('history')" class="card-grad-1 p-4 rounded-2xl shadow-lg shadow-blue-200 text-white relative overflow-hidden group">
+                        <span class="text-[10px] font-bold opacity-90 uppercase tracking-wider group-active:opacity-70">Total Sales</span>
+                        <h2 class="text-xl font-black mt-1">₹ <span id="dash-total">0</span></h2>
+                        <i class="fa-solid fa-chevron-right absolute right-4 top-1/2 transform -translate-y-1/2 opacity-50"></i>
                     </div>
-                    <div class="card-grad-2 p-5 rounded-2xl shadow-lg shadow-red-200 text-white relative overflow-hidden">
-                        <i class="fa-solid fa-wallet absolute -bottom-2 -right-2 text-6xl text-white/20"></i>
-                        <span class="text-xs font-bold opacity-90 uppercase tracking-wider">Expenses</span>
-                        <h2 class="text-2xl font-black mt-1">₹ <span id="dash-expense">0</span></h2>
+                    
+                    <div onclick="app.nav('expenses')" class="card-grad-2 p-4 rounded-2xl shadow-lg shadow-red-200 text-white relative overflow-hidden group">
+                        <span class="text-[10px] font-bold opacity-90 uppercase tracking-wider group-active:opacity-70">Expenses</span>
+                        <h2 class="text-xl font-black mt-1">₹ <span id="dash-expense">0</span></h2>
+                        <i class="fa-solid fa-chevron-right absolute right-4 top-1/2 transform -translate-y-1/2 opacity-50"></i>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3">
-                    <button onclick="app.nav('history')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-solid fa-file-invoice text-xl"></i></div>
-                        <span class="text-xs font-bold text-slate-600">Sale List</span>
+                <div class="grid grid-cols-3 gap-3 shrink-0">
+                    <button onclick="app.nav('history')" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1 active:scale-95 transition">
+                        <i class="fa-solid fa-file-invoice text-blue-600"></i><span class="text-[10px] font-bold text-slate-600">Sale List</span>
                     </button>
-                    <button onclick="app.nav('items')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
-                        <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600"><i class="fa-solid fa-box-open text-xl"></i></div>
-                        <span class="text-xs font-bold text-slate-600">Stock</span>
+                    <button onclick="app.nav('credit')" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1 active:scale-95 transition">
+                        <i class="fa-solid fa-book-open text-orange-600"></i><span class="text-[10px] font-bold text-slate-600">Credit</span>
                     </button>
-                    <button onclick="app.nav('expenses')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 active:scale-95 transition h-28">
-                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600"><i class="fa-solid fa-money-bill-wave text-xl"></i></div>
-                        <span class="text-xs font-bold text-slate-600">Expenses</span>
+                    <button onclick="app.nav('items')" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1 active:scale-95 transition">
+                        <i class="fa-solid fa-box-open text-purple-600"></i><span class="text-[10px] font-bold text-slate-600">Stock</span>
                     </button>
-                    
-                    <button onclick="app.nav('credit')" class="col-span-3 bg-white p-4 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between active:scale-95 transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="fa-solid fa-book-open text-xl"></i></div>
-                            <div class="text-left">
-                                <span class="block text-sm font-bold text-slate-800">Credit Book (Udhaar)</span>
-                                <span class="text-[10px] font-bold text-slate-400">Manage Dues & EMI</span>
+                </div>
+
+                <!-- DESIGNER CALCULATOR SECTION -->
+                <div class="flex-1 calc-bg-theme rounded-t-3xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] border-t border-slate-200 flex flex-col overflow-hidden mt-2 relative z-10">
+                    <!-- Display -->
+                    <div class="p-4 pb-2">
+                        <div class="calc-screen-theme p-3 text-right text-5xl font-bold rounded-xl shadow-inner h-20 flex items-center justify-end overflow-hidden" id="calc-display">0</div>
+                    </div>
+
+                    <!-- GST Buttons -->
+                    <div class="grid grid-cols-5 gap-1.5 px-4 mb-2">
+                        <button onclick="calc.addGST(3)" class="gst-btn-theme text-green-600">+3%</button>
+                        <button onclick="calc.addGST(5)" class="gst-btn-theme text-green-600">+5%</button>
+                        <button onclick="calc.addGST(18)" class="gst-btn-theme text-green-600">+18%</button>
+                        <button onclick="calc.addGST(28)" class="gst-btn-theme text-green-600">+28%</button>
+                        <button onclick="calc.addCustomGST(1)" class="gst-btn-theme bg-green-50 border-green-100 text-green-700">+GST</button>
+
+                        <button onclick="calc.addGST(-3)" class="gst-btn-theme text-red-500">-3%</button>
+                        <button onclick="calc.addGST(-5)" class="gst-btn-theme text-red-500">-5%</button>
+                        <button onclick="calc.addGST(-18)" class="gst-btn-theme text-red-500">-18%</button>
+                        <button onclick="calc.addGST(-28)" class="gst-btn-theme text-red-500">-28%</button>
+                        <button onclick="calc.addCustomGST(-1)" class="gst-btn-theme bg-red-50 border-red-100 text-red-700">-GST</button>
+                    </div>
+
+                    <!-- Keypad (Screenshot Design) -->
+                    <div class="flex-1 grid grid-cols-4 gap-2 px-4 pb-24">
+                        <!-- Row 1 -->
+                        <button onclick="calc.num(7)" class="calc-btn-base btn-num">7</button>
+                        <button onclick="calc.num(8)" class="calc-btn-base btn-num">8</button>
+                        <button onclick="calc.num(9)" class="calc-btn-base btn-num">9</button>
+                        <button onclick="calc.clear()" class="calc-btn-base btn-ac">AC</button>
+
+                        <!-- Row 2 -->
+                        <button onclick="calc.num(4)" class="calc-btn-base btn-num">4</button>
+                        <button onclick="calc.num(5)" class="calc-btn-base btn-num">5</button>
+                        <button onclick="calc.num(6)" class="calc-btn-base btn-num">6</button>
+                        <button onclick="calc.op('/')" class="calc-btn-base btn-op">÷</button>
+
+                        <!-- Row 3 -->
+                        <button onclick="calc.num(1)" class="calc-btn-base btn-num">1</button>
+                        <button onclick="calc.num(2)" class="calc-btn-base btn-num">2</button>
+                        <button onclick="calc.num(3)" class="calc-btn-base btn-num">3</button>
+                        <button onclick="calc.op('*')" class="calc-btn-base btn-op">×</button>
+
+                        <!-- Row 4 -->
+                        <button onclick="calc.num(0)" class="calc-btn-base btn-num">0</button>
+                        <button onclick="calc.num('00')" class="calc-btn-base btn-num">00</button>
+                        <button onclick="calc.num('.')" class="calc-btn-base btn-num">.</button>
+                        <button onclick="calc.op('-')" class="calc-btn-base btn-op">−</button>
+                        
+                        <!-- Row 5 -->
+                        <button onclick="calc.del()" class="calc-btn-base btn-op text-lg"><i class="fa-solid fa-delete-left"></i></button>
+                        <button onclick="calc.op('%')" class="calc-btn-base btn-op">%</button>
+                        <button onclick="calc.op('+')" class="calc-btn-base btn-op">+</button>
+                        <button onclick="calc.solve()" class="calc-btn-base btn-op bg-blue-600 text-white border-none">=</button>
+                    </div>
+
+                    <!-- CIRCULAR ACTION BAR -->
+                    <div class="absolute bottom-0 left-0 w-full h-20 bg-white border-t border-slate-100 flex justify-between items-center px-6 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+                        
+                        <!-- Cash In -->
+                        <button onclick="app.quickSaleCalc()" class="flex flex-col items-center justify-center text-green-600 active:scale-90 transition w-16 group">
+                            <div class="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center mb-1 border border-green-100 group-active:bg-green-100">
+                                <i class="fa-solid fa-arrow-down font-bold"></i>
                             </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300"></i>
-                    </button>
+                            <span class="text-[10px] font-bold">CASH IN</span>
+                        </button>
+
+                        <!-- BIG CIRCLE PLUS -->
+                        <button onclick="app.newBill()" class="w-16 h-16 bg-blue-600 rounded-full text-white text-3xl shadow-xl shadow-blue-200 flex items-center justify-center border-4 border-white -mt-8 active:scale-90 transition hover:bg-blue-700">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+
+                        <!-- Cash Out -->
+                        <button onclick="app.quickExpenseCalc()" class="flex flex-col items-center justify-center text-red-500 active:scale-90 transition w-16 group">
+                            <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center mb-1 border border-red-100 group-active:bg-red-100">
+                                <i class="fa-solid fa-arrow-up font-bold"></i>
+                            </div>
+                            <span class="text-[10px] font-bold">CASH OUT</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- NEW SALE SCREEN -->
-            <div id="view-billing" class="hidden h-full flex flex-col fade-in">
+            <!-- NEW SALE SCREEN (FULL) -->
+            <div id="view-billing" class="hidden h-full flex flex-col fade-in pb-20">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex-1 overflow-y-auto">
                     <div class="flex justify-between items-center mb-6">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Invoice #</span>
@@ -189,7 +265,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 grid grid-cols-2 gap-3 pb-24">
+                <div class="mt-4 grid grid-cols-2 gap-3">
                     <button onclick="app.saveBill(true)" class="bg-slate-800 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Save & New</button>
                     <button onclick="app.saveBill(false)" class="bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition">Save Bill</button>
                 </div>
@@ -223,11 +299,9 @@
                         <i class="fa-solid fa-file-excel text-lg block mb-1"></i> Export
                     </button>
                 </div>
-                
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-5">
                     <div class="h-32 w-full"><canvas id="salesChart"></canvas></div>
                 </div>
-
                 <div class="flex bg-white p-1 rounded-xl mb-5 shadow-sm border border-slate-100">
                     <button onclick="app.filterHistory('today')" id="btn-today" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all filter-active">Today</button>
                     <button onclick="app.filterHistory('month')" id="btn-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-400">Month</button>
@@ -271,34 +345,18 @@
                     <input id="set-address" placeholder="Address" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
                     <input id="set-upi" placeholder="UPI ID" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
                     <input id="set-gstin" placeholder="GSTIN" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
-                    <input id="set-pass" placeholder="App Password (Leave empty to remove)" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
+                    <input id="set-pass" placeholder="App Password" class="w-full p-3 bg-slate-50 rounded-xl outline-none text-sm font-bold">
                     
                     <button onclick="app.updateProfile()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold shadow-lg">Update Profile</button>
                     
                     <div class="h-px bg-slate-100 my-2"></div>
-                    
-                    <button onclick="app.showTrash()" class="w-full bg-red-50 text-red-500 py-3 rounded-xl font-bold border border-red-100 text-sm flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-trash"></i> Trash Bin (Restore)
-                    </button>
-
+                    <button onclick="app.showTrash()" class="w-full bg-red-50 text-red-500 py-3 rounded-xl font-bold border border-red-100 text-sm flex justify-center items-center gap-2"><i class="fa-solid fa-trash"></i> Trash Bin</button>
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="app.exportExcel()" class="bg-green-50 text-green-700 py-3 rounded-xl font-bold border border-green-100 text-xs flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-file-excel text-lg"></i> Export Excel
-                        </button>
-                        <button onclick="app.backupFlow()" class="bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 text-xs flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-download text-lg"></i> JSON Backup
-                        </button>
+                        <button onclick="app.exportExcel()" class="bg-green-50 text-green-700 py-3 rounded-xl font-bold border border-green-100 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-file-excel text-lg"></i> Excel Backup</button>
+                        <button onclick="app.backupFlow()" class="bg-blue-50 text-blue-700 py-3 rounded-xl font-bold border border-blue-100 text-xs flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-download text-lg"></i> JSON Backup</button>
                     </div>
-                    
-                    <label class="block bg-slate-50 text-slate-500 py-3 rounded-xl font-bold border-2 border-dashed border-slate-200 text-xs text-center cursor-pointer hover:bg-slate-100 transition">
-                        <i class="fa-solid fa-upload mr-1"></i> Restore Data (Excel/JSON)
-                        <input type="file" class="hidden" onchange="app.restore(this)">
-                    </label>
-
-                    <button onclick="app.shareDigitTools()" class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-bold border border-indigo-100 text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-share-nodes"></i> Share DigitTools
-                    </button>
-
+                    <label class="block bg-slate-50 text-slate-500 py-3 rounded-xl font-bold border-2 border-dashed border-slate-200 text-xs text-center cursor-pointer hover:bg-slate-100 transition"><i class="fa-solid fa-upload mr-1"></i> Restore Data (Excel/JSON)<input type="file" class="hidden" onchange="app.restore(this)"></label>
+                    <button onclick="app.shareDigitTools()" class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-bold border border-indigo-100 text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-share-nodes"></i> Share DigitTools</button>
                     <button onclick="app.logout()" class="w-full text-red-500 py-2 font-bold text-xs mt-2">Logout</button>
                 </div>
             </div>
@@ -311,140 +369,75 @@
                 </div>
                 <div id="trash-list" class="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-50"></div>
             </div>
-
-        </div>
-
-        <!-- FAB -->
-        <div id="fab-btn" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-            <button onclick="app.newBill()" class="w-20 h-20 bg-blue-600 rounded-full text-white text-3xl shadow-2xl fab-shadow flex items-center justify-center border-[6px] border-slate-50 active:scale-90 transition hover:scale-105 hover:bg-blue-700">
-                <i class="fa-solid fa-plus"></i>
-            </button>
         </div>
     </div>
 
     <!-- SUCCESS MODAL -->
     <div id="success-modal" class="fixed inset-0 z-[60] bg-black/90 flex flex-col items-center justify-center p-4 hidden backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
-             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
-                 <i class="fa-solid fa-check"></i>
-             </div>
+             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner"><i class="fa-solid fa-check"></i></div>
              <h2 class="text-2xl font-black text-slate-800">Saved Successfully!</h2>
              <p class="text-sm text-slate-500 mb-6 font-bold">Invoice Generated</p>
              <div class="grid grid-cols-2 gap-4">
-                 <button onclick="app.downloadBillAction()" class="bg-slate-800 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fa-solid fa-download"></i> Download
-                 </button>
-                 <button onclick="app.shareBillAction()" class="bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fa-brands fa-whatsapp text-lg"></i> Share
-                 </button>
+                 <button onclick="app.downloadBillAction()" class="bg-slate-800 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fa-solid fa-download"></i> Download</button>
+                 <button onclick="app.shareBillAction()" class="bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fa-brands fa-whatsapp text-lg"></i> Share</button>
              </div>
              <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="text-slate-400 text-xs font-bold mt-6 hover:text-slate-600">Close Window</button>
         </div>
     </div>
 
-    <!-- INVOICE MODERN RENDER (The one you liked) -->
-    <div id="invoice-modern-render" class="p-0 text-slate-800 font-sans bg-white">
-        <!-- Header -->
+    <!-- HIDDEN INVOICE -->
+    <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans bg-white">
         <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-4xl font-bold uppercase tracking-wider" id="mod-shop-name">SHOP NAME</h1>
-                <p class="text-sm mt-1 opacity-80 tracking-widest">INVOICE</p>
-            </div>
-            <div class="text-right">
-                <h2 class="text-3xl font-bold" id="mod-inv-total">₹ 0.00</h2>
-            </div>
+            <div><h1 class="text-4xl font-bold uppercase tracking-wider" id="mod-shop-name">SHOP NAME</h1><p class="text-sm mt-1 opacity-80 tracking-widest">INVOICE</p></div>
+            <div class="text-right"><h2 class="text-3xl font-bold" id="mod-inv-total">₹ 0.00</h2></div>
         </div>
-
         <div class="p-10">
-            <!-- Info Grid -->
             <div class="flex justify-between mb-10">
-                <div class="w-1/2">
-                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">From</p>
-                    <p class="font-bold text-lg text-slate-800" id="mod-from-name">Shop Name</p>
-                    <p class="text-sm text-slate-600 w-2/3" id="mod-from-addr">Address</p>
-                    <p class="text-sm text-slate-600 mt-1">Ph: <span id="mod-from-phone"></span></p>
-                    <p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p>
-                </div>
-                <div class="w-1/2 text-right">
-                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Bill To</p>
-                    <p class="font-bold text-lg text-slate-800" id="mod-to-name">Guest</p>
-                    <p class="text-sm text-slate-600" id="mod-to-phone">Phone</p>
-                    <div class="mt-4 inline-block text-right bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <p class="text-sm"><span class="font-bold text-slate-500">Invoice #:</span> <span class="font-bold" id="mod-inv-no"></span></p>
-                        <p class="text-sm"><span class="font-bold text-slate-500">Date:</span> <span class="font-bold" id="mod-inv-date"></span></p>
-                    </div>
-                </div>
+                <div class="w-1/2"><p class="text-xs font-bold text-slate-400 uppercase mb-1">From</p><p class="font-bold text-lg text-slate-800" id="mod-from-name">Shop</p><p class="text-sm text-slate-600 w-2/3" id="mod-from-addr">Addr</p><p class="text-sm text-slate-600 mt-1">Ph: <span id="mod-from-phone"></span></p><p class="text-sm text-slate-600">GSTIN: <span id="mod-from-gst"></span></p></div>
+                <div class="w-1/2 text-right"><p class="text-xs font-bold text-slate-400 uppercase mb-1">Bill To</p><p class="font-bold text-lg text-slate-800" id="mod-to-name">Guest</p><p class="text-sm text-slate-600" id="mod-to-phone">Phone</p><div class="mt-4 inline-block text-right bg-slate-50 p-3 rounded-lg border border-slate-100"><p class="text-sm"><span class="font-bold text-slate-500">Invoice #:</span> <span class="font-bold" id="mod-inv-no"></span></p><p class="text-sm"><span class="font-bold text-slate-500">Date:</span> <span class="font-bold" id="mod-inv-date"></span></p></div></div>
             </div>
-
-            <!-- Table -->
-            <table class="w-full mb-8 border-collapse">
-                <thead class="bg-[#003366] text-white">
-                    <tr>
-                        <th class="p-4 text-left text-sm font-bold uppercase w-1/2">Description</th>
-                        <th class="p-4 text-center text-sm font-bold uppercase">Qty</th>
-                        <th class="p-4 text-center text-sm font-bold uppercase">Price</th>
-                        <th class="p-4 text-center text-sm font-bold uppercase">GST</th>
-                        <th class="p-4 text-right text-sm font-bold uppercase">Amount</th>
-                    </tr>
-                </thead>
-                <tbody id="mod-tbody" class="text-sm text-slate-700">
-                    <!-- Row will be inserted here -->
-                </tbody>
-            </table>
-
-            <!-- Totals -->
-            <div class="flex justify-end">
-                <div class="w-72">
-                    <div class="flex justify-between py-2 border-b border-slate-200">
-                        <span class="text-slate-500 font-medium">Subtotal</span>
-                        <span class="font-bold" id="mod-subtotal">0.00</span>
-                    </div>
-                    <div class="flex justify-between py-2 border-b border-slate-200">
-                        <span class="text-slate-500 font-medium">Tax (GST)</span>
-                        <span class="font-bold" id="mod-tax">0.00</span>
-                    </div>
-                    <div class="flex justify-between py-3 font-bold text-xl text-[#003366]">
-                        <span>TOTAL</span>
-                        <span>₹ <span id="mod-grand-total">0.00</span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="mt-20 pt-8 border-t-2 border-slate-100 text-center">
-                <p class="text-sm font-bold text-slate-700">Thank you for your business!</p>
-                <p class="text-xs text-slate-500 mt-1">Payment Info: UPI - <span id="mod-upi" class="font-mono text-slate-800"></span></p>
-                <div class="mt-6 text-[10px] text-slate-300 font-bold uppercase tracking-widest">Powered by DigitMart</div>
-            </div>
+            <table class="w-full mb-8 border-collapse"><thead class="bg-[#003366] text-white"><tr><th class="p-4 text-left text-sm font-bold uppercase w-1/2">Description</th><th class="p-4 text-center text-sm font-bold uppercase">Qty</th><th class="p-4 text-center text-sm font-bold uppercase">Price</th><th class="p-4 text-center text-sm font-bold uppercase">GST</th><th class="p-4 text-right text-sm font-bold uppercase">Amount</th></tr></thead><tbody id="mod-tbody" class="text-sm text-slate-700"></tbody></table>
+            <div class="flex justify-end"><div class="w-72"><div class="flex justify-between py-2 border-b border-slate-200"><span class="text-slate-500 font-medium">Subtotal</span><span class="font-bold" id="mod-subtotal">0.00</span></div><div class="flex justify-between py-2 border-b border-slate-200"><span class="text-slate-500 font-medium">Tax (GST)</span><span class="font-bold" id="mod-tax">0.00</span></div><div class="flex justify-between py-3 font-bold text-xl text-[#003366]"><span>TOTAL</span><span>₹ <span id="mod-grand-total">0.00</span></span></div></div></div>
+            <div class="mt-20 pt-8 border-t-2 border-slate-100 text-center"><p class="text-sm font-bold text-slate-700">Thank you for your business!</p><p class="text-xs text-slate-500 mt-1">Payment Info: UPI - <span id="mod-upi" class="font-mono text-slate-800"></span></p><div class="mt-6 text-[10px] text-slate-300 font-bold uppercase tracking-widest">Powered by DigitMart</div></div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'digitmart_billbook_v14';
-        const OLD_KEYS = ['digitmart_billbook_v13', 'digitmart_billbook_v12', 'digitmart_billbook_v11'];
+        const DB_KEY = 'digitmart_billbook_v22';
+        const OLD_KEYS = ['digitmart_billbook_v21', 'digitmart_billbook_v20', 'digitmart_billbook_v19'];
         let salesChartInstance = null;
+
+        const calc = {
+            display: '0',
+            addGST: function(percent) {
+                let val = parseFloat(this.display); if(isNaN(val)) return;
+                let tax = val * (Math.abs(percent) / 100);
+                this.display = String(percent > 0 ? (val + tax) : (val - tax));
+                this.update();
+            },
+            addCustomGST: function(sign) { let rate = prompt("Enter GST %:"); if(rate) this.addGST(sign * parseFloat(rate)); },
+            num: function(n) { if(this.display === '0') this.display = String(n); else this.display += String(n); this.update(); },
+            op: function(o) { this.display += o; this.update(); },
+            clear: function() { this.display = '0'; this.update(); },
+            del: function() { this.display = this.display.slice(0, -1) || '0'; this.update(); },
+            solve: function() { try { this.display = String(eval(this.display)); } catch { this.display = 'Error'; } this.update(); },
+            update: function() { document.getElementById('calc-display').innerText = this.display; },
+            getVal: function() { return parseFloat(this.display) || 0; }
+        };
 
         const app = {
             data: { shop: null, invoices: [], expenses: [], items: [], credits: [], trash: [] },
-            currentMode: 'Cash',
-            currentInv: null,
+            currentMode: 'Cash', currentInv: null,
 
             init: function() {
                 let stored = localStorage.getItem(DB_KEY);
-                if(!stored) {
-                    for(let key of OLD_KEYS) {
-                        const oldData = localStorage.getItem(key);
-                        if(oldData) { stored = oldData; break; }
-                    }
-                }
-
+                if(!stored) { for(let key of OLD_KEYS) { const old = localStorage.getItem(key); if(old) { stored = old; break; } } }
                 if(stored) {
                     this.data = JSON.parse(stored);
                     if(!this.data.credits) this.data.credits = [];
                     if(!this.data.trash) this.data.trash = [];
-                    if(this.data.items.length > 0 && typeof this.data.items[0] === 'string') {
-                        this.data.items = this.data.items.map(name => ({name, price: ''}));
-                    }
+                    if(this.data.items.length > 0 && typeof this.data.items[0] === 'string') this.data.items = this.data.items.map(name => ({name, price: ''}));
                     this.cleanupTrash();
                 }
                 
@@ -458,63 +451,33 @@
                         this.loadSettings();
                         this.nav('dashboard');
                     }
-                } else {
-                    document.getElementById('view-setup').classList.remove('hidden');
-                }
+                } else { document.getElementById('view-setup').classList.remove('hidden'); }
             },
 
-            save: function() {
-                localStorage.setItem(DB_KEY, JSON.stringify(this.data));
-                this.updateDashboard();
-            },
-
-            moveToTrash: function(item, type) {
-                this.data.trash.push({ ...item, deletedAt: Date.now(), type: type });
-            },
-
-            cleanupTrash: function() {
-                const sevenDays = 7 * 24 * 60 * 60 * 1000;
-                this.data.trash = this.data.trash.filter(item => (Date.now() - item.deletedAt) < sevenDays);
-                this.save();
-            },
-
+            save: function() { localStorage.setItem(DB_KEY, JSON.stringify(this.data)); this.updateDashboard(); },
+            moveToTrash: function(item, type) { this.data.trash.push({ ...item, deletedAt: Date.now(), type: type }); },
+            cleanupTrash: function() { const week = 7*24*60*60*1000; this.data.trash = this.data.trash.filter(i => (Date.now() - i.deletedAt) < week); this.save(); },
+            
             showTrash: function() {
                 const list = document.getElementById('trash-list');
                 list.innerHTML = '';
                 if(this.data.trash.length === 0) list.innerHTML = '<div class="text-center text-slate-400 mt-10">Bin is Empty</div>';
                 else {
                     this.data.trash.forEach((item, idx) => {
-                        list.innerHTML += `
-                            <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
-                                <div><span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">${item.type}</span><div class="font-bold text-sm text-slate-800 mt-1">${item.name || item.no}</div></div>
-                                <button onclick="app.restoreFromTrash(${idx})" class="text-blue-600 font-bold text-xs bg-blue-50 px-3 py-2 rounded-lg">Restore</button>
-                            </div>`;
+                        list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center"><div><span class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">${item.type}</span><div class="font-bold text-sm text-slate-800 mt-1">${item.name || item.no}</div></div><button onclick="app.restoreFromTrash(${idx})" class="text-blue-600 font-bold text-xs bg-blue-50 px-3 py-2 rounded-lg">Restore</button></div>`;
                     });
                 }
                 document.getElementById('view-trash').classList.remove('hidden');
             },
-
             restoreFromTrash: function(idx) {
                 const item = this.data.trash[idx];
                 this.data.trash.splice(idx, 1);
                 if(item.type === 'invoice') this.data.invoices.unshift(item);
                 else if(item.type === 'credit') this.data.credits.unshift(item);
                 else if(item.type === 'expense') this.data.expenses.unshift(item);
-                this.save();
-                this.showTrash();
-                alert('Restored!');
+                this.save(); this.showTrash(); alert('Restored!');
             },
-
-            deleteExpense: function(id) {
-                const item = this.data.expenses.find(e => e.id === id);
-                if(confirm('Move Expense to Trash?')) {
-                    this.moveToTrash(item, 'expense');
-                    this.data.expenses = this.data.expenses.filter(e => e.id !== id);
-                    this.save();
-                    this.renderExpenses();
-                    this.updateDashboard();
-                }
-            },
+            deleteExpense: function(id) { const item = this.data.expenses.find(e => e.id === id); if(confirm('Move Expense to Trash?')) { this.moveToTrash(item, 'expense'); this.data.expenses = this.data.expenses.filter(e => e.id !== id); this.save(); this.renderExpenses(); this.updateDashboard(); } },
 
             nav: function(viewId) {
                 document.querySelectorAll('#main-content > div').forEach(el => el.classList.add('hidden'));
@@ -522,76 +485,40 @@
                 document.getElementById('header-shop-name').innerText = this.data.shop.shopName;
                 const fab = document.getElementById('fab-btn');
                 const backBtn = document.getElementById('back-btn');
-
-                if(viewId === 'dashboard') {
-                    fab.classList.remove('hidden');
-                    backBtn.classList.add('hidden');
-                } else {
-                    fab.classList.add('hidden');
-                    backBtn.classList.remove('hidden');
-                }
-
-                if(viewId === 'billing') {
-                    document.getElementById('bill-inv-no').innerText = `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`;
-                    this.populateItemSuggestions();
-                }
+                if(viewId === 'dashboard') { backBtn.classList.add('hidden'); } else { backBtn.classList.remove('hidden'); }
+                if(viewId === 'billing') { document.getElementById('bill-inv-no').innerText = `INV-${String(this.data.invoices.length + 1).padStart(4, '0')}`; this.populateItemSuggestions(); }
                 if(viewId === 'history') { this.filterHistory('today'); this.renderSalesChart(); }
                 if(viewId === 'expenses') this.renderExpenses();
                 if(viewId === 'items') this.renderStockItems();
                 if(viewId === 'credit') this.renderCredits();
-                
                 this.updateDashboard();
             },
 
-            markCreditPaid: function(id) {
-                const creditIndex = this.data.credits.findIndex(c => c.id === id);
-                if(creditIndex === -1) return;
-                const credit = this.data.credits[creditIndex];
-
-                if(confirm(`Mark ₹${credit.amount} as Paid? Moving to Sales.`)) {
-                    const newInv = {
-                        id: Date.now(),
-                        no: `INV-PAY-${String(this.data.invoices.length+1).padStart(3,'0')}`,
-                        date: new Date().toLocaleDateString('en-IN'),
-                        rawDate: new Date(),
-                        time: new Date().toLocaleTimeString(),
-                        item: `Payment: ${credit.note || 'Due'}`,
-                        rate: credit.amount, gstPercent: 0, taxAmount: 0,
-                        grandTotal: credit.amount.toFixed(2),
-                        mode: 'Cash',
-                        phone: credit.phone,
-                        name: credit.name
-                    };
-                    this.data.invoices.unshift(newInv);
-                    this.data.credits.splice(creditIndex, 1);
+            // SMART QUICK ADD LOGIC
+            quickSaleCalc: function() {
+                const val = calc.getVal();
+                if(val <= 0) return alert("Amount must be > 0");
+                if(confirm(`Add ₹${val} to Sales?`)) {
+                    const inv = { id: Date.now(), no: `INV-${String(this.data.invoices.length+1).padStart(4,'0')}`, date: new Date().toLocaleDateString('en-IN'), rawDate: new Date(), time: new Date().toLocaleTimeString(), item: 'Quick Sale', rate: val, gstPercent: 0, taxAmount: 0, grandTotal: val.toFixed(2), mode: 'Cash', phone: '', name: 'Walk-in' };
+                    this.data.invoices.unshift(inv);
                     this.save();
-                    this.renderCredits();
-                    alert('Payment Received! Added to Sales.');
+                    alert("Sale Added!");
+                    calc.clear();
+                }
+            },
+            quickExpenseCalc: function() {
+                const val = calc.getVal();
+                if(val <= 0) return alert("Amount must be > 0");
+                if(confirm(`Add ₹${val} to Expenses?`)) {
+                    this.data.expenses.unshift({ id: Date.now(), name: "Quick Expense", amount: val, date: new Date().toLocaleDateString('en-IN') });
+                    this.save();
+                    alert("Expense Added!");
+                    calc.clear();
                 }
             },
 
-            sendCreditWhatsapp: function(phone, name, amt) {
-                if(!phone) return alert('No Phone!');
-                let msg = `Hello ${name}, payment of ₹${amt} is pending at *${this.data.shop.shopName}*.`;
-                if(this.data.shop.upi) msg += `\nPay via UPI: ${this.data.shop.upi}`;
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-
-            saveSetup: function(e) {
-                e.preventDefault();
-                const fd = new FormData(e.target);
-                this.data.shop = Object.fromEntries(fd.entries());
-                this.save();
-                location.reload();
-            },
-            login: function() {
-                if(document.getElementById('input-pass').value === this.data.shop.password) {
-                    document.getElementById('view-login').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    this.loadSettings();
-                    this.nav('dashboard');
-                } else alert('Wrong Password');
-            },
+            saveSetup: function(e) { e.preventDefault(); const fd = new FormData(e.target); this.data.shop = Object.fromEntries(fd.entries()); this.save(); location.reload(); },
+            login: function() { if(document.getElementById('input-pass').value === this.data.shop.password) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('app-interface').classList.remove('hidden'); this.loadSettings(); this.nav('dashboard'); } else alert('Wrong Password'); },
             logout: function() { location.reload(); },
             updateDashboard: function() {
                 const totalSale = this.data.invoices.reduce((sum, i) => sum + parseFloat(i.grandTotal), 0);
@@ -599,51 +526,44 @@
                 document.getElementById('dash-total').innerText = totalSale.toLocaleString('en-IN');
                 document.getElementById('dash-expense').innerText = totalExp.toLocaleString('en-IN');
             },
-            newBill: function() { this.currentMode = 'Cash'; this.updateModeUI(); document.getElementById('bill-cust-name').value=''; document.getElementById('bill-item-name').value=''; document.getElementById('bill-amount').value=''; document.getElementById('bill-cust-phone').value=''; document.getElementById('bill-gst').value='0'; document.getElementById('bill-final-total').innerText='0.00'; document.getElementById('live-qr-container').classList.add('hidden'); this.nav('billing'); },
+            newBill: function(presetAmt) { 
+                this.currentMode = 'Cash'; this.updateModeUI(); 
+                document.getElementById('bill-cust-name').value=''; 
+                document.getElementById('bill-item-name').value=''; 
+                document.getElementById('bill-amount').value=''; 
+                document.getElementById('bill-cust-phone').value=''; 
+                document.getElementById('bill-gst').value='0'; 
+                document.getElementById('bill-final-total').innerText='0.00'; 
+                document.getElementById('live-qr-container').classList.add('hidden'); 
+                this.nav('billing');
+                if(presetAmt) { document.getElementById('bill-amount').value = presetAmt; this.calculateTotal(); }
+            },
             setMode: function(mode) { this.currentMode = mode; this.updateModeUI(); this.calculateTotal(); },
             updateModeUI: function() { document.querySelectorAll('.mode-btn').forEach(b => b.className = "mode-btn py-2.5 rounded-lg text-xs font-black text-slate-400 hover:bg-white/50 transition"); document.getElementById('mode-' + this.currentMode).className = "mode-btn py-2.5 rounded-lg text-xs font-black bg-white text-blue-600 shadow-sm transition ring-1 ring-blue-100"; },
             checkItemPrice: function() { const val = document.getElementById('bill-item-name').value; const item = this.data.items.find(i => i.name === val); if(item && item.price) { document.getElementById('bill-amount').value = item.price; this.calculateTotal(); } },
             calculateTotal: function() { const price = parseFloat(document.getElementById('bill-amount').value)||0; const gstRate = parseFloat(document.getElementById('bill-gst').value)||0; const taxAmt = (price*gstRate)/100; const total = price+taxAmt; document.getElementById('bill-final-total').innerText = total.toFixed(2); const qrCont = document.getElementById('live-qr-container'); const qrDiv = document.getElementById('live-qrcode'); if(this.currentMode === 'UPI' && total>0 && this.data.shop.upi) { qrCont.classList.remove('hidden'); qrDiv.innerHTML = ''; new QRCode(qrDiv, { text: `upi://pay?pa=${this.data.shop.upi}&pn=${encodeURIComponent(this.data.shop.shopName)}&am=${total.toFixed(2)}&cu=INR`, width: 120, height: 120 }); } else { qrCont.classList.add('hidden'); } return { price, gstRate, taxAmt, total }; },
-            saveBill: function(isNew) { const calcs = this.calculateTotal(); if(!calcs.price || calcs.price <= 0) return alert('Amount required!'); const inv = { id: Date.now(), no: `INV-${String(this.data.invoices.length+1).padStart(4,'0')}`, date: new Date().toLocaleDateString('en-IN'), rawDate: new Date(), time: new Date().toLocaleTimeString(), item: document.getElementById('bill-item-name').value || 'Sale', rate: calcs.price, gstPercent: calcs.gstRate, taxAmount: calcs.taxAmt, grandTotal: calcs.total.toFixed(2), mode: this.currentMode, phone: document.getElementById('bill-cust-phone').value, name: document.getElementById('bill-cust-name').value || 'Guest' }; this.data.invoices.unshift(inv); if(this.currentMode === 'Credit') { this.data.credits.unshift({ id: Date.now()+1, name: inv.name, phone: inv.phone, amount: parseFloat(inv.grandTotal), note: `Inv ${inv.no}`, date: inv.date }); } this.save(); this.currentInv = inv; if(isNew) { const btn = event.target; const originalText = btn.innerText; btn.innerText = "Saved!"; setTimeout(() => { btn.innerText = originalText; this.newBill(); }, 800); } else { document.getElementById('success-modal').classList.remove('hidden'); } },
+            
+            saveBill: function(isNew) {
+                const calcs = this.calculateTotal();
+                if(!calcs.price || calcs.price <= 0) return alert('Amount required!');
+                const inv = { id: Date.now(), no: `INV-${String(this.data.invoices.length+1).padStart(4,'0')}`, date: new Date().toLocaleDateString('en-IN'), rawDate: new Date(), time: new Date().toLocaleTimeString(), item: document.getElementById('bill-item-name').value || 'Sale', rate: calcs.price, gstPercent: calcs.gstRate, taxAmount: calcs.taxAmt, grandTotal: calcs.total.toFixed(2), mode: this.currentMode, phone: document.getElementById('bill-cust-phone').value, name: document.getElementById('bill-cust-name').value || 'Guest' };
+                this.data.invoices.unshift(inv);
+                if(this.currentMode === 'Credit') this.data.credits.unshift({ id: Date.now()+1, name: inv.name, phone: inv.phone, amount: parseFloat(inv.grandTotal), note: `Inv ${inv.no}`, date: inv.date });
+                this.save(); this.currentInv = inv;
+                if(isNew) { const btn = event.target; const txt = btn.innerText; btn.innerText = "Saved!"; setTimeout(() => { btn.innerText = txt; this.newBill(); }, 800); } else { document.getElementById('success-modal').classList.remove('hidden'); }
+            },
+
             addCredit: function() { const name = document.getElementById('cred-name').value; const phone = document.getElementById('cred-phone').value; const amt = parseFloat(document.getElementById('cred-amt').value); if(!name || !amt) return alert('Name & Amount needed!'); this.data.credits.unshift({ id: Date.now(), name, phone, amount: amt, note: document.getElementById('cred-note').value || 'Manual', date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('cred-name').value=''; document.getElementById('cred-phone').value=''; document.getElementById('cred-amt').value=''; document.getElementById('cred-note').value=''; this.renderCredits(); alert('Added!'); },
             renderCredits: function() { const list = document.getElementById('credit-list'); list.innerHTML = ''; if(this.data.credits.length===0) { list.innerHTML='<div class="text-center text-slate-400 mt-6 text-xs">No Dues</div>'; return; } this.data.credits.forEach(c => { list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm flex justify-between items-center"><div class="flex-1"><div class="font-bold text-slate-800 text-sm">${c.name}</div><div class="text-[10px] text-slate-500 font-bold">${c.date} • ${c.note}</div><div class="flex gap-3 mt-2">${c.phone ? `<button onclick="window.open('tel:${c.phone}')" class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-600"><i class="fa-solid fa-phone mr-1"></i> Call</button>` : ''}${c.phone ? `<button onclick="app.sendCreditWhatsapp(${c.phone}, '${c.name}', ${c.amount})" class="text-[10px] bg-green-50 px-2 py-1 rounded text-green-600"><i class="fa-brands fa-whatsapp mr-1"></i> Alert</button>` : ''}</div></div><div class="text-right"><div class="font-black text-orange-600 text-lg">₹${c.amount}</div><button onclick="app.markCreditPaid(${c.id})" class="text-[10px] bg-orange-500 text-white px-3 py-1.5 rounded-lg mt-1 font-bold shadow-sm active:scale-95">MARK PAID</button><button onclick="app.deleteCredit(${c.id})" class="text-[10px] text-red-400 block mt-1 ml-auto">Delete</button></div></div>`; }); },
             deleteCredit: function(id) { const item = this.data.credits.find(c => c.id === id); if(confirm('Move to Trash?')) { this.moveToTrash(item, 'credit'); this.data.credits = this.data.credits.filter(c => c.id !== id); this.save(); this.renderCredits(); } },
-            prepareInvoices: function(inv) {
-                document.getElementById('mod-shop-name').innerText = this.data.shop.shopName;
-                document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`;
-                document.getElementById('mod-from-name').innerText = this.data.shop.shopName;
-                document.getElementById('mod-from-addr').innerText = this.data.shop.address;
-                document.getElementById('mod-from-phone').innerText = this.data.shop.phone;
-                document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A';
-                document.getElementById('mod-to-name').innerText = inv.name;
-                document.getElementById('mod-to-phone').innerText = inv.phone || '-';
-                document.getElementById('mod-inv-no').innerText = inv.no;
-                document.getElementById('mod-inv-date').innerText = inv.date;
-                document.getElementById('mod-tbody').innerHTML = `
-                    <tr class="border-b border-slate-200">
-                        <td class="p-4 font-bold">${inv.item}</td>
-                        <td class="p-4 text-center">1</td>
-                        <td class="p-4 text-center">${inv.rate}</td>
-                        <td class="p-4 text-center">${inv.gstPercent}%</td>
-                        <td class="p-4 text-right font-black">${inv.grandTotal}</td>
-                    </tr>`;
-                document.getElementById('mod-subtotal').innerText = inv.rate;
-                document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2);
-                document.getElementById('mod-grand-total').innerText = inv.grandTotal;
-                document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A';
-            },
-            downloadModernJPG: function(cb) { 
-                const element = document.getElementById('invoice-modern-render');
-                html2canvas(element, { scale: 2 }).then(canvas => { 
-                    const a = document.createElement('a'); 
-                    a.download = `Invoice_${this.currentInv.no}.jpg`; 
-                    a.href = canvas.toDataURL('image/jpeg', 0.9); 
-                    a.click(); 
-                    if(cb) cb(); 
-                }); 
-            },
+            markCreditPaid: function(id) { const idx = this.data.credits.findIndex(c => c.id === id); if(idx === -1) return; const credit = this.data.credits[idx]; if(confirm(`Mark ₹${credit.amount} as Paid? Moving to Sales.`)) { const newInv = { id: Date.now(), no: `INV-PAY-${String(this.data.invoices.length+1).padStart(3,'0')}`, date: new Date().toLocaleDateString('en-IN'), rawDate: new Date(), time: new Date().toLocaleTimeString(), item: `Payment: ${credit.note || 'Due'}`, rate: credit.amount, gstPercent: 0, taxAmount: 0, grandTotal: credit.amount.toFixed(2), mode: 'Cash', phone: credit.phone, name: credit.name }; this.data.invoices.unshift(newInv); this.data.credits.splice(idx, 1); this.save(); this.renderCredits(); alert('Payment Received! Added to Sales.'); } },
+            sendCreditWhatsapp: function(phone, name, amt) { if(!phone) return alert('No Phone!'); let msg = `Hello ${name}, payment of ₹${amt} is pending at *${this.data.shop.shopName}*.`; if(this.data.shop.upi) msg += `\nPay via UPI: ${this.data.shop.upi}`; window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank'); },
+            
+            prepareInvoices: function(inv) { document.getElementById('mod-shop-name').innerText = this.data.shop.shopName; document.getElementById('mod-inv-total').innerText = `₹ ${inv.grandTotal}`; document.getElementById('mod-from-name').innerText = this.data.shop.shopName; document.getElementById('mod-from-addr').innerText = this.data.shop.address; document.getElementById('mod-from-phone').innerText = this.data.shop.phone; document.getElementById('mod-from-gst').innerText = this.data.shop.gstin || 'N/A'; document.getElementById('mod-to-name').innerText = inv.name; document.getElementById('mod-to-phone').innerText = inv.phone || '-'; document.getElementById('mod-inv-no').innerText = inv.no; document.getElementById('mod-inv-date').innerText = inv.date; document.getElementById('mod-tbody').innerHTML = `<tr class="border-b border-slate-200"><td class="p-4 font-bold">${inv.item}</td><td class="p-4 text-center">1</td><td class="p-4 text-center">${inv.rate}</td><td class="p-4 text-center">${inv.gstPercent}%</td><td class="p-4 text-right font-black">${inv.grandTotal}</td></tr>`; document.getElementById('mod-subtotal').innerText = inv.rate; document.getElementById('mod-tax').innerText = parseFloat(inv.taxAmount).toFixed(2); document.getElementById('mod-grand-total').innerText = inv.grandTotal; document.getElementById('mod-upi').innerText = this.data.shop.upi || 'N/A'; },
+            downloadModernJPG: function(cb) { const element = document.getElementById('invoice-modern-render'); html2canvas(element, { scale: 2 }).then(canvas => { const a = document.createElement('a'); a.download = `Invoice_${this.currentInv.no}.jpg`; a.href = canvas.toDataURL('image/jpeg', 0.9); a.click(); if(cb) cb(); }); },
             downloadBillAction: function() { if(!this.currentInv) return; this.prepareInvoices(this.currentInv); this.downloadModernJPG(); },
             shareBillAction: function() { if(!this.currentInv) return; if(!this.currentInv.phone) return alert('No Phone!'); this.prepareInvoices(this.currentInv); this.downloadModernJPG(() => { const t = `*INVOICE FROM ${this.data.shop.shopName}*\nBill: ${this.currentInv.no}\nAmt: ₹${this.currentInv.grandTotal}`; window.open(`https://wa.me/91${this.currentInv.phone}?text=${encodeURIComponent(t)}`, '_blank'); }); },
+            
             addExpense: function() { const name = document.getElementById('exp-name').value; const amt = parseFloat(document.getElementById('exp-amt').value); if(!name || !amt) return; this.data.expenses.unshift({ id: Date.now(), name, amount: amt, date: new Date().toLocaleDateString('en-IN') }); this.save(); document.getElementById('exp-name').value=''; document.getElementById('exp-amt').value=''; this.renderExpenses(); },
             renderExpenses: function() { const list = document.getElementById('expense-list'); list.innerHTML = ''; this.data.expenses.forEach(e => { list.innerHTML += `<div class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center"><div><span class="text-sm font-bold text-slate-700 block">${e.name}</span><span class="text-xs text-slate-400 font-normal">${e.date}</span></div><div class="flex items-center gap-3"><span class="font-bold text-red-500">₹${e.amount}</span><button onclick="app.deleteExpense(${e.id})" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button></div></div>`; }); },
             addStockItem: function() { const name = document.getElementById('stock-name').value; const price = document.getElementById('stock-price').value; if(!name) return; this.data.items.push({name, price}); this.save(); document.getElementById('stock-name').value=''; document.getElementById('stock-price').value=''; this.renderStockItems(); },
