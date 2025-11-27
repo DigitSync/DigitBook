@@ -36,7 +36,7 @@
         
         /* Base Button */
         .calc-btn-base { 
-            @apply h-14 rounded-2xl font-bold text-xl flex items-center justify-center shadow-sm transition-all active:scale-90 active:shadow-inner;
+            @apply h-12 rounded-2xl font-bold text-xl flex items-center justify-center shadow-sm transition-all active:scale-90 active:shadow-inner;
         }
 
         /* Color Palette from Screenshot */
@@ -132,7 +132,7 @@
                 <div class="flex-1 calc-bg-theme rounded-t-3xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] border-t border-slate-200 flex flex-col overflow-hidden mt-2 relative z-10">
                     <!-- Display -->
                     <div class="p-4 pb-2">
-                        <div class="calc-screen-theme p-3 text-right text-5xl font-bold rounded-xl shadow-inner h-20 flex items-center justify-end overflow-hidden" id="calc-display">0</div>
+                        <div class="calc-screen-theme p-2 text-right text-4xl font-bold rounded-xl shadow-inner h-26 flex items-center justify-end overflow-hidden" id="calc-display">0</div>
                     </div>
 
                     <!-- GST Buttons -->
@@ -151,7 +151,7 @@
                     </div>
 
                     <!-- Keypad (Screenshot Design) -->
-                    <div class="flex-1 grid grid-cols-4 gap-2 px-4 pb-24">
+                    <div class="flex-1 grid grid-cols-4 gap-2 px-4 pb-16">
                         <!-- Row 1 -->
                         <button onclick="calc.num(7)" class="calc-btn-base btn-num">7</button>
                         <button onclick="calc.num(8)" class="calc-btn-base btn-num">8</button>
@@ -179,8 +179,8 @@
                         <!-- Row 5 -->
                         <button onclick="calc.del()" class="calc-btn-base btn-op text-lg"><i class="fa-solid fa-delete-left"></i></button>
                         <button onclick="calc.op('%')" class="calc-btn-base btn-op">%</button>
-                        <button onclick="calc.op('+')" class="calc-btn-base btn-op">+</button>
                         <button onclick="calc.solve()" class="calc-btn-base btn-op bg-blue-600 text-white border-none">=</button>
+                        <button onclick="calc.op('+')" class="calc-btn-base btn-op">+</button>
                     </div>
 
                     <!-- CIRCULAR ACTION BAR -->
