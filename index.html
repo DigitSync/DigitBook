@@ -178,7 +178,8 @@
                         
                         <!-- Row 5 -->
                         <button onclick="calc.del()" class="calc-btn-base btn-op text-lg"><i class="fa-solid fa-delete-left"></i></button>
-                        <button onclick="calc.op('%')" class="calc-btn-base btn-op">%</button>
+                        <!-- MODIFIED: Changed % to QR Code Button -->
+                        <button onclick="app.showCalcQR()" class="calc-btn-base btn-op text-white"><i class="fa-solid fa-qrcode"></i></button>
                         <button onclick="calc.solve()" class="calc-btn-base btn-op bg-blue-600 text-white border-none">=</button>
                         <button onclick="calc.op('+')" class="calc-btn-base btn-op">+</button>
                     </div>
@@ -386,6 +387,19 @@
         </div>
     </div>
 
+    <!-- NEW: FULL SCREEN QR OVERLAY -->
+    <div id="qr-overlay" onclick="this.classList.add('hidden')" class="fixed inset-0 z-[100] bg-slate-900/95 flex flex-col items-center justify-center hidden backdrop-blur-sm p-6 animate-in fade-in duration-200">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 w-full max-w-sm pointer-events-none transform scale-110">
+            <h2 class="text-2xl font-black text-slate-800">Scan to Pay</h2>
+            <div id="calc-qr-target" class="border-4 border-slate-100 rounded-xl p-2"></div>
+            <div class="text-center">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Total Amount</p>
+                <h1 class="text-4xl font-black text-blue-600">₹ <span id="qr-overlay-amt">0</span></h1>
+            </div>
+        </div>
+        <p class="text-white/50 text-sm font-bold mt-8 animate-pulse">Tap anywhere to close</p>
+    </div>
+
     <!-- HIDDEN INVOICE -->
     <div id="invoice-modern-render" class="p-8 text-slate-800 font-sans bg-white">
         <div class="bg-[#003366] text-white p-8 flex justify-between items-center">
@@ -517,6 +531,24 @@
                 }
             },
 
+            // NEW FUNCTION: Show Calculator QR
+            showCalcQR: function() {
+                const val = calc.getVal();
+                if(val <= 0) return alert("Please enter amount first");
+                if(!this.data.shop.upi) return alert("Please add UPI ID in Settings first!");
+                
+                document.getElementById('qr-overlay-amt').innerText = val;
+                const target = document.getElementById('calc-qr-target');
+                target.innerHTML = '';
+                new QRCode(target, {
+                    text: `upi://pay?pa=${this.data.shop.upi}&pn=${encodeURIComponent(this.data.shop.shopName)}&am=${val}&cu=INR`,
+                    width: 250,
+                    height: 250,
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                document.getElementById('qr-overlay').classList.remove('hidden');
+            },
+
             saveSetup: function(e) { e.preventDefault(); const fd = new FormData(e.target); this.data.shop = Object.fromEntries(fd.entries()); this.save(); location.reload(); },
             login: function() { if(document.getElementById('input-pass').value === this.data.shop.password) { document.getElementById('view-login').classList.add('hidden'); document.getElementById('app-interface').classList.remove('hidden'); this.loadSettings(); this.nav('dashboard'); } else alert('Wrong Password'); },
             logout: function() { location.reload(); },
@@ -583,5 +615,4 @@
     </script>
 </body>
 </html>
-
 
